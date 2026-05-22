@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Core/" />
+  <Folder Name="/Core/Core_Libs/">
+    <Project Path="Core.Bom.Lib/Core.Bom.Lib.csproj" />
+    <Project Path="Core.Shared.Lib/Core.Shared.Lib.csproj" />
+  </Folder>
+  <Folder Name="/Core/Core_Service/">
+    <Project Path="Core.Service/Core.Service.csproj" />
+  </Folder>
+  <Folder Name="/MODULES/" />
+  <Folder Name="/Modules/BOM/">
+    <Project Path="Bom.Lib/Bom.Lib.csproj" />
+    <Project Path="Bom.UI/Bom.UI.csproj" />
+  </Folder>
+  <Folder Name="/Runner/">
+    <Project Path="RUNNER/Runner.csproj" />
+  </Folder>
+</Solution>
