@@ -3,17 +3,15 @@ using Bom.Lib;
 
 namespace Bom.UI.Controllers
 {
-    [Area("BOM")]
-    public class BomHomeController : Controller
+    public class HomeController : Controller
     {
         private readonly BomManager _bomManager;
 
-        public BomHomeController(BomManager bomManager)
+        public HomeController(BomManager bomManager)
         {
             _bomManager = bomManager;
         }
 
-        [HttpGet("/BomHome/Index")]
         public IActionResult Index()
         {
             var model = _bomManager.PrepareBomListForUI();

@@ -16,12 +16,27 @@ if (!Directory.Exists(modulesRootPath))
     modulesRootPath = Path.Combine(currentExecutionPath, "..", "..", "..", "..", "Server", "MODULES");
 }
 
+string sharedPath = Path.Combine(modulesRootPath, "Shared");
+if (!Directory.Exists(modulesRootPath))
+{
+    string solutionPath = Path.GetFullPath(Path.Combine(currentExecutionPath, "..", "..", "..", ".."));
+
+    if (!Directory.Exists(Path.Combine(solutionPath, "Server", "MODULES")))
+    {
+        solutionPath = Path.GetFullPath(Path.Combine(currentExecutionPath, "..", "..", "..", "..", ".."));
+    }
+
+    modulesRootPath = Path.Combine(solutionPath, "Server", "MODULES");
+}
+
 if (Directory.Exists(modulesRootPath))
 {
     var moduleDirectories = Directory.GetDirectories(modulesRootPath);
 
     foreach (var dir in moduleDirectories)
     {
+        if (Path.GetFileName(dir).Equals("Shared", StringComparison.OrdinalIgnoreCase)) continue;
+
         var allDlls = Directory.GetFiles(dir, "*.dll");
         foreach (var dllPath in allDlls)
         {
@@ -37,7 +52,6 @@ if (Directory.Exists(modulesRootPath))
             try
             {
                 var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(dllPath);
-
                 mvcBuilder.AddApplicationPart(assembly).AddControllersAsServices();
                 embeddedProviders.Add(new EmbeddedFileProvider(assembly));
             }
@@ -69,6 +83,8 @@ if (Directory.Exists(modulesRootPath))
     var moduleDirectories = Directory.GetDirectories(modulesRootPath);
     foreach (var dir in moduleDirectories)
     {
+        if (Path.GetFileName(dir).Equals("Shared", StringComparison.OrdinalIgnoreCase)) continue;
+
         var allDlls = Directory.GetFiles(dir, "*.dll");
         foreach (var dllPath in allDlls)
         {
@@ -90,13 +106,14 @@ foreach (var assembly in loadedAssemblies)
     string? assemblyName = assembly.GetName().Name;
     if (assemblyName != null)
     {
-        bool isModuleActive = activeModules.Any(mod => assemblyName.StartsWith(mod + ".", StringComparison.OrdinalIgnoreCase)
-                                                     || assemblyName.Equals(mod, StringComparison.OrdinalIgnoreCase));
+        bool isModuleActive = activeModules.Any(mod =>
+            assemblyName.StartsWith(mod + ".", StringComparison.OrdinalIgnoreCase) ||
+            assemblyName.Equals(mod, StringComparison.OrdinalIgnoreCase));
 
         if (isModuleActive)
         {
             var typesToRegister = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && (t.Name.EndsWith("Repository") || t.Name.EndsWith("Manager")));
+                .Where(t => t.IsClass && !t.IsAbstract && (t.Name.EndsWith("Repository") || t.Name.EndsWith("Manager") || t.Name.EndsWith("Controller")));
 
             foreach (var type in typesToRegister)
             {
@@ -119,7 +136,11 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllerRoute(
+    name: "bom_special",
+    pattern: "BOM/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
     name: "default",
-    pattern: "{area=BOM}/{controller=BomHome}/{action=Index}/{id?}");
+    pattern: "{controller=Portal}/{action=Index}/{id?}");
 
 app.Run();
