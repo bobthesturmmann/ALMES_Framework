@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Bom.UI": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:64137;http://localhost:64138"
+    }
+  }
+}
