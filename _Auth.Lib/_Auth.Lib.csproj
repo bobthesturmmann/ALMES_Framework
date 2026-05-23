@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\_Auth.Core.Lib\_Core.Auth.Lib.csproj" />
+    <ProjectReference Include="..\_Core.Shared.Lib\_Core.Shared.Lib.csproj" />
+  </ItemGroup>
+	
+	<Target Name="PostBuildMacros" BeforeTargets="PostBuildEvent">
+		<PropertyGroup>
+			<ModuleOutputDir>$(SolutionDir)Server\MODULES\_Auth\</ModuleOutputDir>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="CopyModuleAssemblies" AfterTargets="Build">
+		<Message Importance="High" Text="[ALMES BUILD] _Auth.Lib DLL'leri MODULES klasörüne kopyalanıyor..." />
+		<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="$(ModuleOutputDir)" />
+		<Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+		<Copy SourceFiles="$(TargetDir)_Core.Auth.Lib.dll" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)_Core.Auth.Lib.dll')" />
+		<Copy SourceFiles="$(TargetDir)_Core.Shared.Lib.dll" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)_Core.Shared.Lib.dll')" />
+	</Target>
+</Project>

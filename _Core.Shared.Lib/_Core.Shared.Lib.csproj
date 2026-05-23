@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Core.Bom.Lib\Core.Bom.Lib.csproj" />
-  </ItemGroup>
-
 </Project>

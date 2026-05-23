@@ -8,11 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core.Service\Core.Service.csproj" />
+    <ProjectReference Include="..\_Core.Shared.Lib\_Core.Shared.Lib.csproj" />
   </ItemGroup>
-	<Target Name="CopyToServerShared" AfterTargets="Build">
-		<ItemGroup>
-			<SharedFiles Include="$(TargetDir)*.dll" />
-		</ItemGroup>
-		<Copy SourceFiles="@(SharedFiles)" DestinationFolder="$(SolutionDir)Server\MODULES\Shared" SkipUnchangedFiles="true" />
-	</Target>
+
 </Project>

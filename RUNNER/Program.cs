@@ -1,9 +1,21 @@
+using _Core.Shared.Lib;
 using Core.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using System.Runtime.Loader;
-using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(AuthConstants.CookieScheme)
+    .AddCookie(AuthConstants.CookieScheme, options =>
+    {
+        options.LoginPath = "/_Auth/Account/Login";
+        options.LogoutPath = "/_Auth/Account/Logout";
+        options.Cookie.Name = AuthConstants.CookieScheme;
+    });
+
+builder.Services.AddAuthorization();
 
 var mvcBuilder = builder.Services.AddControllersWithViews();
 var embeddedProviders = new List<IFileProvider>();
@@ -17,6 +29,7 @@ if (!Directory.Exists(modulesRootPath))
 }
 
 string sharedPath = Path.Combine(modulesRootPath, "Shared");
+
 if (!Directory.Exists(modulesRootPath))
 {
     string solutionPath = Path.GetFullPath(Path.Combine(currentExecutionPath, "..", "..", "..", ".."));
@@ -87,7 +100,6 @@ if (Directory.Exists(modulesRootPath))
 
         var allDlls = Directory.GetFiles(dir, "*.dll");
         foreach (var dllPath in allDlls)
-        {
             try
             {
                 var loadedAssembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(dllPath);
@@ -97,7 +109,6 @@ if (Directory.Exists(modulesRootPath))
                 }
             }
             catch { }
-        }
     }
 }
 
@@ -133,7 +144,13 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "bom_special",
