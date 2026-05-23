@@ -23,14 +23,6 @@ namespace Core.Service
             return ExecuteCustomQuery(query, mapFunction);
         }
 
-        public List<T> ReadFromTable<T>(string moduleName, string operationName, Func<IDataRecord, T> mapFunction)
-        {
-            string tableName = $"ALT_{_companyCode}_{moduleName}_{operationName}";
-            string query = $"SELECT * FROM {tableName}";
-
-            return ExecuteCustomQuery(query, mapFunction);
-        }
-
         public List<T> ExecuteCustomQuery<T>(string query, Func<IDataRecord, T> mapFunction)
         {
             var list = new List<T>();

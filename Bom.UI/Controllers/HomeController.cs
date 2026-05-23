@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Bom.Lib;
+﻿using Bom.Lib;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Bom.UI.Controllers
 {
+    [Area("Bom")]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly BomManager _bomManager;
