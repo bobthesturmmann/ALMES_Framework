@@ -12,7 +12,7 @@
     <Project Path="Bom.Lib/Bom.Lib.csproj" />
     <Project Path="Bom.UI/Bom.UI.csproj" />
   </Folder>
-  <Folder Name="/Runner/">
-    <Project Path="RUNNER/Runner.csproj" />
+  <Folder Name="/Portal/">
+    <Project Path="RUNNER/Portal.csproj" />
   </Folder>
 </Solution>

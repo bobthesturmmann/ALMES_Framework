@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Runner.Controllers
+namespace Portal.Controllers
 {
     public class PortalController : Controller
     {

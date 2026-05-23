@@ -1,4 +1,4 @@
-namespace RUNNER.Models
+namespace Portal.Models
 {
     public class ErrorViewModel
     {
