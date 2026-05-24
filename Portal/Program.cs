@@ -21,11 +21,11 @@ var mvcBuilder = builder.Services.AddControllersWithViews();
 var embeddedProviders = new List<IFileProvider>();
 
 string currentExecutionPath = AppDomain.CurrentDomain.BaseDirectory;
-string modulesRootPath = Path.Combine(currentExecutionPath, "MODULES");
+string modulesRootPath = Path.Combine(currentExecutionPath, "Modules");
 
 if (!Directory.Exists(modulesRootPath))
 {
-    modulesRootPath = Path.Combine(currentExecutionPath, "..", "..", "..", "..", "Server", "MODULES");
+    modulesRootPath = Path.Combine(currentExecutionPath, "..", "..", "..", "..", "Server", "Modules");
 }
 
 string sharedPath = Path.Combine(modulesRootPath, "Shared");
@@ -34,12 +34,12 @@ if (!Directory.Exists(modulesRootPath))
 {
     string solutionPath = Path.GetFullPath(Path.Combine(currentExecutionPath, "..", "..", "..", ".."));
 
-    if (!Directory.Exists(Path.Combine(solutionPath, "Server", "MODULES")))
+    if (!Directory.Exists(Path.Combine(solutionPath, "Server", "Modules")))
     {
         solutionPath = Path.GetFullPath(Path.Combine(currentExecutionPath, "..", "..", "..", "..", ".."));
     }
 
-    modulesRootPath = Path.Combine(solutionPath, "Server", "MODULES");
+    modulesRootPath = Path.Combine(solutionPath, "Server", "Modules");
 }
 
 if (Directory.Exists(modulesRootPath))
