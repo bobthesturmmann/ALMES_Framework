@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="AI-Settings.txt" />
+  </Folder>
   <Folder Name="/_core/" />
   <Folder Name="/_core/_core_libs/">
     <Project Path="Core.Bom.Lib/Core.Bom.Lib.csproj" />

@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\_Auth.Core.Lib\_Core.Auth.Lib.csproj" />
-    <ProjectReference Include="..\_Core.Shared.Lib\_Core.Shared.Lib.csproj" />
   </ItemGroup>
 	
 	<Target Name="PostBuildMacros" BeforeTargets="PostBuildEvent">

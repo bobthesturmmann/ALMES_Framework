@@ -14,5 +14,4 @@
     <ProjectReference Include="..\Core.Service\Core.Service.csproj" />
     <ProjectReference Include="..\_Core.Shared.Lib\_Core.Shared.Lib.csproj" />
   </ItemGroup>
-
 </Project>

@@ -134,6 +134,57 @@ foreach (var assembly in loadedAssemblies)
     }
 }
 
+// --- ALMES DINAMIK STATIK DOSYA KOPYALAMA MOTORU ---
+void CopyActiveModulesStaticFiles(IConfiguration configuration)
+{
+    string currentPath = AppDomain.CurrentDomain.BaseDirectory;
+
+    var activeModules = configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
+
+    string portalWwwRoot = Path.Combine(currentPath, "wwwroot");
+    if (!Directory.Exists(portalWwwRoot)) Directory.CreateDirectory(portalWwwRoot);
+
+    string solutionPath = Path.GetFullPath(Path.Combine(currentPath, "..", "..", "..", ".."));
+    string modulesRootPath = Path.Combine(solutionPath, "Modules");
+
+    if (!Directory.Exists(modulesRootPath))
+    {
+        solutionPath = Path.GetFullPath(Path.Combine(currentPath, "..", "..", "..", "..", ".."));
+        modulesRootPath = Path.Combine(solutionPath, "Modules");
+    }
+
+    foreach (var module in activeModules)
+    {
+        if (module.Equals("Core", StringComparison.OrdinalIgnoreCase)) continue;
+
+        string moduleWwwRoot = Path.Combine(modulesRootPath, module, $"{module}.UI", "wwwroot");
+
+        if (Directory.Exists(moduleWwwRoot))
+        {
+            string targetModuleFolder = Path.Combine(portalWwwRoot, module.ToLower());
+            if (!Directory.Exists(targetModuleFolder)) Directory.CreateDirectory(targetModuleFolder);
+
+            foreach (string dirPath in Directory.GetDirectories(moduleWwwRoot, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(moduleWwwRoot, targetModuleFolder));
+            }
+
+            foreach (string newPath in Directory.GetDirectories(moduleWwwRoot, "*", SearchOption.AllDirectories)
+                                             .SelectMany(d => Directory.GetFiles(d))
+                                             .Concat(Directory.GetFiles(moduleWwwRoot)))
+            {
+                string destFile = newPath.Replace(moduleWwwRoot, targetModuleFolder);
+                if (!File.Exists(destFile) || File.GetLastWriteTime(newPath) > File.GetLastWriteTime(destFile))
+                {
+                    File.Copy(newPath, destFile, true);
+                }
+            }
+        }
+    }
+}
+
+CopyActiveModulesStaticFiles(builder.Configuration);
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

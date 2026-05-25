@@ -3,116 +3,74 @@
 @{
     Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ALMES ERP - Ürün Ağaçları (BOM)</title>
-    <style>
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background-color: #f4f6f9;
-                margin: 20px;
-                color: #333;
-            }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-            .container {
-                background: #fff;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-
-            h2 {
-                color: #1a365d;
-                margin-top: 0;
-                border-bottom: 2px solid #e2e8f0;
-                padding-bottom: 10px;
-            }
-
-            .info-text {
-                font-size: 0.9em;
-                color: #718096;
-                margin-bottom: 20px;
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-            }
-
-            th, td {
-                padding: 12px 15px;
-                text-align: left;
-                border-bottom: 1px solid #e2e8f0;
-            }
-
-            th {
-                background-color: #2b6cb0;
-                color: white;
-                font-weight: 600;
-            }
-
-            tr:hover {
-                background-color: #f7fafc;
-            }
-
-            .badge {
-                background-color: #edf2f7;
-                color: #2b6cb0;
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-weight: bold;
-                font-family: monospace;
-            }
-
-            .no-data {
-                text-align: center;
-                color: #e53e3e;
-                padding: 20px;
-                font-weight: bold;
-            }
-    </style>
+    <link rel="stylesheet" href="~/bom/css/bom-style.css" asp-append-version="true" />
 </head>
 <body>
 
-    <div class="container">
-        <h2>🏭 ALMES ERP — Ürün Ağaçları Listesi (BOM)</h2>
-        <div class="info-text">
-            Bilgi, veritabanındaki <strong>ALV_000_BOM_RECETE_LISTESI</strong> view'ı üzerinden anlık çekilmektedir.
-        </div>
+    <div class="container py-5">
+        <div class="card bom-card p-4 bg-white">
 
-        @if (Model != null && Model.Any())
-        {
-            <table>
-                <thead>
-                    <tr>
-                        <th>Reçete Kodu</th>
-                        <th>Mamul Kodu</th>
-                        <th>Reçete Adı</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td><span class="badge">@item.RecipeCode</span></td>
-                            <td>@item.ProductCode</td>
-                            <td>@item.RecipeName</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <div class="no-data">
-                ⚠️ Sistemde kayıtlı reçete view verisi bulunamadı.
+            <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
+                <div>
+                    <h2 class="fw-bold text-dark m-0">🏭 ALMES ERP — Ürün Ağaçları Listesi (BOM)</h2>
+                    <p class="text-muted small mb-0 mt-1">Üretim reçeteleri ve mamul hiyerarşisi yönetim paneli.</p>
+                </div>
+                <span class="badge bg-primary px-3 py-2 rounded-pill">v0.0.9</span>
             </div>
-        }
+
+            <div class="alert info-banner p-3 mb-4 rounded-3 d-flex align-items-center" role="alert">
+                <i class="bi bi-database-fill-check fs-4 me-3"></i>
+                <div>
+                    Bilgi, veritabanındaki <strong class="font-monospace">ALV_000_BOM_RECETE_LISTESI</strong> view'ı üzerinden anlık ve canlı olarak çekilmektedir.
+                </div>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover bom-table align-middle border">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="py-3 px-4">Reçete Kodu</th>
+                                <th scope="col" class="py-3">Mamul Kodu</th>
+                                <th scope="col" class="py-3">Reçete Adı</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="px-4">
+                                        <span class="recipe-badge"><i class="bi bi-hash me-1"></i>@item.RecipeCode</span>
+                                    </td>
+                                    <td class="fw-semibold text-secondary">@item.ProductCode</td>
+                                    <td class="text-dark">@item.RecipeName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center my-3 py-5 rounded-3" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill text-warning display-4 d-block mb-3"></i>
+                    <h5 class="alert-heading fw-bold">Sistemde Kayıtlı Reçete Bulunamadı!</h5>
+                    <p class="mb-0 text-muted">SQL Server tarafındaki view verisi boş veya henüz bir senkronizasyon gerçekleşmedi.</p>
+                </div>
+            }
+        </div>
     </div>
 
+    <script src="~/bom/js/bom-logic.js" asp-append-version="true"></script>
 </body>
 </html>

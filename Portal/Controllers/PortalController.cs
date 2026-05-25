@@ -16,19 +16,20 @@ namespace Portal.Controllers
             var availableModules = new List<string>();
 
             string currentExecutionPath = AppDomain.CurrentDomain.BaseDirectory;
-            string modulesRootPath = Path.Combine(currentExecutionPath, "MODULES");
+            string modulesRootPath = Path.Combine(currentExecutionPath, "Modules");
 
             if (!Directory.Exists(modulesRootPath))
             {
                 string solutionPath = Path.GetFullPath(Path.Combine(currentExecutionPath, "..", "..", "..", ".."));
-                if (!Directory.Exists(Path.Combine(solutionPath, "Server", "MODULES")))
+                if (!Directory.Exists(Path.Combine(solutionPath, "Server", "Modules")))
                 {
                     solutionPath = Path.GetFullPath(Path.Combine(currentExecutionPath, "..", "..", "..", "..", ".."));
                 }
-                modulesRootPath = Path.Combine(solutionPath, "Server", "MODULES");
+                modulesRootPath = Path.Combine(solutionPath, "Server", "Modules");
             }
 
             var activeModules = _configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
+            var hiddenModules = _configuration.GetSection("HiddenModules").Get<List<string>>() ?? new List<string>();
 
             if (Directory.Exists(modulesRootPath))
             {
@@ -38,6 +39,7 @@ namespace Portal.Controllers
                     string folderName = Path.GetFileName(dir);
 
                     if (folderName.Equals("Shared", StringComparison.OrdinalIgnoreCase)) continue;
+                    if (hiddenModules.Contains(folderName, StringComparer.OrdinalIgnoreCase)) continue;
 
                     if (activeModules.Contains(folderName))
                     {

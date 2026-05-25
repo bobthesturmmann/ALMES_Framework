@@ -249,7 +249,8 @@
       },
       "Core.Bom.Lib/1.0.0": {
         "dependencies": {
-          "Core.Service": "1.0.0"
+          "Core.Service": "1.0.0",
+          "_Core.Shared.Lib": "1.0.0"
         },
         "runtime": {
           "Core.Bom.Lib.dll": {
@@ -264,6 +265,14 @@
         },
         "runtime": {
           "Core.Service.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "_Core.Shared.Lib/1.0.0": {
+        "runtime": {
+          "_Core.Shared.Lib.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -393,6 +402,11 @@
       "sha512": ""
     },
     "Core.Service/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "_Core.Shared.Lib/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -8,7 +8,8 @@
     "All functional UI modules must be compiled directly into the 'Server/Modules/' folder (e.g., Server/Modules/Bom/).",
     "Folder names and namespaces must strictly follow PascalCase. Never use all-caps 'MODULES' or 'BOM'.",
     "Active modules are managed dynamically via appsettings.json under the 'ActiveModules' array.",
-    "Always check dependencies and output paths in .csproj files before suggesting structural changes."
+    "Always check dependencies and output paths in .csproj files before suggesting structural changes.",
+    "Only provide code snippets for manual entry; proceed step-by-step; show 2-3 code snippets per turn; explain each step."
   ],
 
   "system_workflow": {
