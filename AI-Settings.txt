@@ -15,9 +15,9 @@
   "system_workflow": {
     "build_mechanism": [
       "1. The project uses independent modules that are not tightly coupled to the main Portal project.",
-      "2. When a module UI project (e.g., Bom.UI, _Auth.UI) is compiled, its MSBuild targets automatically redirect the output DLL and PDB files.",
+      "2. When a module UI project (e.g., Bom.UI, Auth.UI) is compiled, its MSBuild targets automatically redirect the output DLL and PDB files.",
       "3. In Bom.UI.csproj, this is managed via <OutputPath>$(SolutionDir)Server\\Modules\\Bom\\</OutputPath>.",
-      "4. In _Auth.UI.csproj, this is managed via a custom PostBuild target named 'CopyModuleUIAssemblies' which copies files to '$(SolutionDir)Server\\Modules\\_Auth\\'.",
+      "4. In Auth.UI.csproj, this is managed via a custom PostBuild target named 'CopyModuleUIAssemblies' which copies files to '$(SolutionDir)Server\\Modules\\Auth\\'.",
       "5. Performing a 'Rebuild Solution' cleans all old artifacts and freshly generates the 'Server/Modules/' folder on the local disk."
     ],
     

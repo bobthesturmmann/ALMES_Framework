@@ -10,8 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthentication(AuthConstants.CookieScheme)
     .AddCookie(AuthConstants.CookieScheme, options =>
     {
-        options.LoginPath = "/_Auth/Account/Login";
-        options.LogoutPath = "/_Auth/Account/Logout";
+        options.LoginPath = "/Auth/Account/Login";
+        options.LogoutPath = "/Auth/Account/Logout";
         options.Cookie.Name = AuthConstants.CookieScheme;
     });
 
@@ -86,9 +86,16 @@ if (embeddedProviders.Any())
     );
 }
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddSingleton<SqlEngine>();
 
 var activeModules = builder.Configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
+
+var hiddenModules = builder.Configuration.GetSection("HiddenModules").Get<List<string>>() ?? new List<string>();
+
+var allTargetModules = activeModules.Concat(hiddenModules).Distinct().ToList();
+
 var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
 
 if (Directory.Exists(modulesRootPath))
@@ -115,26 +122,60 @@ if (Directory.Exists(modulesRootPath))
 foreach (var assembly in loadedAssemblies)
 {
     string? assemblyName = assembly.GetName().Name;
-    if (assemblyName != null)
-    {
-        bool isModuleActive = activeModules.Any(mod =>
-            assemblyName.StartsWith(mod + ".", StringComparison.OrdinalIgnoreCase) ||
-            assemblyName.Equals(mod, StringComparison.OrdinalIgnoreCase));
+    if (assemblyName == null) continue;
 
-        if (isModuleActive)
+    bool isOurAssembly = assemblyName.StartsWith("Core", StringComparison.OrdinalIgnoreCase) ||
+                         assemblyName.StartsWith("_Core", StringComparison.OrdinalIgnoreCase) ||
+                         assemblyName.StartsWith("Bom", StringComparison.OrdinalIgnoreCase) ||
+                         assemblyName.StartsWith("Auth", StringComparison.OrdinalIgnoreCase);
+
+    if (!isOurAssembly) continue;
+
+    try
+    {
+        var allTypes = assembly.GetTypes().Where(t => t.IsClass && !t.IsAbstract);
+
+        foreach (var type in allTypes)
+        {
+            var interfaces = type.GetInterfaces();
+            foreach (var @interface in interfaces)
+            {
+                if (@interface.Name == "I" + type.Name || @interface.Namespace?.Contains("Shared") == true)
+                {
+                    builder.Services.AddScoped(@interface, type);
+                }
+            }
+        }
+    }
+    catch { }
+
+    bool isTargetModule = allTargetModules.Any(mod =>
+        assemblyName.StartsWith(mod + ".", StringComparison.OrdinalIgnoreCase) ||
+        assemblyName.Equals(mod, StringComparison.OrdinalIgnoreCase) ||
+        assemblyName.StartsWith("_Core.", StringComparison.OrdinalIgnoreCase) ||
+        assemblyName.StartsWith("Core.", StringComparison.OrdinalIgnoreCase));
+
+    if (isTargetModule)
+    {
+        try
         {
             var typesToRegister = assembly.GetTypes()
-                .Where(t => t.IsClass && !t.IsAbstract && (t.Name.EndsWith("Repository") || t.Name.EndsWith("Manager") || t.Name.EndsWith("Controller")));
+                .Where(t => t.IsClass && !t.IsAbstract &&
+                    (t.Name.EndsWith("Repository") ||
+                     t.Name.EndsWith("Manager") ||
+                     t.Name.EndsWith("Controller") ||
+                     t.Name.EndsWith("Service") ||
+                     t.Name.EndsWith("Bridge")));
 
             foreach (var type in typesToRegister)
             {
                 builder.Services.AddTransient(type);
             }
         }
+        catch { }
     }
 }
 
-// --- ALMES DINAMIK STATIK DOSYA KOPYALAMA MOTORU ---
 void CopyActiveModulesStaticFiles(IConfiguration configuration)
 {
     string currentPath = AppDomain.CurrentDomain.BaseDirectory;

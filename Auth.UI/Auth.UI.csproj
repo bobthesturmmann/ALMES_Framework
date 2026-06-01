@@ -16,25 +16,21 @@
 	</ItemGroup>-->
 
 	<ItemGroup>
-		<ProjectReference Include="..\_Auth.Lib\_Auth.Lib.csproj" />
+		<ProjectReference Include="..\Auth.Lib\Auth.Lib.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="Areas\**\*.cshtml" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Content Remove="Areas\_Auth\Views\_ViewImports.cshtml" />
-	</ItemGroup>
-
 	<Target Name="PostBuildMacros" BeforeTargets="PostBuildEvent">
 		<PropertyGroup>
-			<ModuleOutputDir>$(SolutionDir)Server\Modules\_Auth\</ModuleOutputDir>
+			<ModuleOutputDir>$(SolutionDir)Server\Modules\Auth\</ModuleOutputDir>
 		</PropertyGroup>
 	</Target>
 
 	<Target Name="CopyModuleUIAssemblies" AfterTargets="Build">
-		<Message Importance="High" Text="[ALMES BUILD] _Auth.UI DLL'leri Modules klasörüne kopyalanıyor..." />
+		<Message Importance="High" Text="[ALMES BUILD] Auth.UI DLL'leri Modules klasörüne kopyalanıyor..." />
 		<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="$(ModuleOutputDir)" />
 		<Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
 	</Target>

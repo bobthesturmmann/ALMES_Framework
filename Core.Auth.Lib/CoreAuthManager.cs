@@ -4,23 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Core.Service;
-using _Core.Shared.Lib;
+using Core.Service; // Core katmanı olduğu için SqlEngine'i kullanabilir!
 
-namespace _Auth.Lib
+namespace Core.Auth.Lib
 {
-    public class AuthManager
+    public class CoreAuthManager
     {
         private readonly SqlEngine _sqlEngine;
         private readonly string _companyCode;
 
-        public AuthManager(SqlEngine sqlEngine, IConfiguration configuration)
+        public CoreAuthManager(SqlEngine sqlEngine, IConfiguration configuration)
         {
             _sqlEngine = sqlEngine;
             _companyCode = configuration["AlmesSettings:CompanyCode"] ?? "000";
         }
 
-        public async Task<CurrentUserContext?> ValidateUserAsync(string username, string password)
+        public async Task<CoreAuthUser?> ValidateUserInDatabaseAsync(string username, string password)
         {
             var safeUsername = username.Trim().Replace("'", "''");
             var cleanPassword = password.Trim();
@@ -28,16 +27,16 @@ namespace _Auth.Lib
             string tableName = $"ALT_{_companyCode}_AUTH_USERS";
             string query = $"SELECT Id, Username, Email, PasswordHash FROM {tableName} WHERE Username = '{safeUsername}' AND IsActive = 1";
 
-            List<CurrentUserContextWithPassword> users = _sqlEngine.ExecuteCustomQuery(query, reader =>
+            List<CoreUserWithPassword> users = _sqlEngine.ExecuteCustomQuery(query, reader =>
             {
-                return new CurrentUserContextWithPassword
+                return new CoreUserWithPassword
                 {
-                    Context = new CurrentUserContext
+                    User = new CoreAuthUser
                     {
                         UserId = Convert.ToInt32(reader["Id"]),
                         Username = reader["Username"].ToString() ?? string.Empty,
                         Email = reader["Email"].ToString() ?? string.Empty,
-                        Roles = new List<string> { AuthConstants.RoleAdmin }
+                        Roles = new List<string> { "Admin" }
                     },
                     PasswordHash = reader["PasswordHash"].ToString() ?? string.Empty
                 };
@@ -49,8 +48,7 @@ namespace _Auth.Lib
 
                 if (cleanPassword == matchedUser.PasswordHash)
                 {
-                    matchedUser.Context.AuthenticationTime = DateTime.UtcNow;
-                    return matchedUser.Context;
+                    return matchedUser.User;
                 }
             }
 
@@ -58,9 +56,17 @@ namespace _Auth.Lib
         }
     }
 
-    internal class CurrentUserContextWithPassword
+    public class CoreAuthUser
     {
-        public CurrentUserContext Context { get; set; } = null!;
+        public int UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public List<string> Roles { get; set; } = new List<string>();
+    }
+
+    internal class CoreUserWithPassword
+    {
+        public CoreAuthUser User { get; set; } = null!;
         public string PasswordHash { get; set; } = string.Empty;
     }
 }
