@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Core.Service; // Core katmanı olduğu için SqlEngine'i kullanabilir!
+using Core.Service;
 
 namespace Core.Auth.Lib
 {
-    public class CoreAuthManager
+    public class CoreAuthService
     {
         private readonly SqlEngine _sqlEngine;
         private readonly string _companyCode;
 
-        public CoreAuthManager(SqlEngine sqlEngine, IConfiguration configuration)
+        public CoreAuthService(SqlEngine sqlEngine, IConfiguration configuration)
         {
             _sqlEngine = sqlEngine;
             _companyCode = configuration["AlmesSettings:CompanyCode"] ?? "000";
@@ -45,13 +45,11 @@ namespace Core.Auth.Lib
             if (users != null && users.Count > 0)
             {
                 var matchedUser = users.First();
-
                 if (cleanPassword == matchedUser.PasswordHash)
                 {
                     return matchedUser.User;
                 }
             }
-
             return null;
         }
     }

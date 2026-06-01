@@ -1,19 +1,20 @@
-﻿using Core.Auth.Lib;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Core.Auth.Lib;
 
 namespace Auth.Lib
 {
-    public class AuthenticationService : Core.Auth.Lib.IAuthenticationService
+    public class AuthService : IAuthService
     {
-        private readonly CoreAuthManager _coreAuthManager;
+        private readonly CoreAuthService _coreAuthManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private const string CookieScheme = "AlmesSecureCookie";
 
-        public AuthenticationService(CoreAuthManager coreAuthManager, IHttpContextAccessor httpContextAccessor)
+        public AuthService(CoreAuthService coreAuthManager, IHttpContextAccessor httpContextAccessor)
         {
             _coreAuthManager = coreAuthManager;
             _httpContextAccessor = httpContextAccessor;
@@ -41,10 +42,9 @@ namespace Auth.Lib
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
 
-                string cookieScheme = "AlmesSecureCookie";
-                var claimsIdentity = new ClaimsIdentity(claims, cookieScheme);
+                var claimsIdentity = new ClaimsIdentity(claims, CookieScheme);
 
-                await HttpContext.SignInAsync(cookieScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+                await HttpContext.SignInAsync(CookieScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                 {
                     IsPersistent = rememberMe,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
@@ -60,7 +60,7 @@ namespace Auth.Lib
         {
             if (HttpContext != null)
             {
-                await HttpContext.SignOutAsync("AlmesSecureCookie");
+                await HttpContext.SignOutAsync(CookieScheme);
             }
         }
     }

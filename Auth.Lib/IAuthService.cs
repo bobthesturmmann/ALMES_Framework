@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
 
-namespace Core.Auth.Lib
+namespace Auth.Lib
 {
-    public interface IAuthenticationService
+    public interface IAuthService
     {
         Task<bool> LoginAsync(string username, string password, bool rememberMe);
-
         Task LogoutAsync();
     }
 }

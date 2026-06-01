@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Core.Auth.Lib;
+using Auth.Lib;
 using Auth.UI.Areas.Auth.Models;
 
 namespace Auth.UI.Areas.Auth.Controllers.AccountController
@@ -8,11 +8,11 @@ namespace Auth.UI.Areas.Auth.Controllers.AccountController
     [Area("Auth")]
     public class AccountController : Controller
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthService _authService;
 
-        public AccountController(IAuthenticationService authenticationService)
+        public AccountController(IAuthService authService)
         {
-            _authenticationService = authenticationService;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -27,7 +27,7 @@ namespace Auth.UI.Areas.Auth.Controllers.AccountController
         {
             if (!ModelState.IsValid) return View(model);
 
-            bool isSuccess = await _authenticationService.LoginAsync(model.Username, model.Password, model.RememberMe);
+            bool isSuccess = await _authService.LoginAsync(model.Username, model.Password, model.RememberMe);
 
             if (isSuccess)
             {
@@ -35,7 +35,7 @@ namespace Auth.UI.Areas.Auth.Controllers.AccountController
                 {
                     return Redirect(model.ReturnUrl);
                 }
-                return RedirectToAction("Index", "Home", new { area = "" });
+                return RedirectToAction("Index", "Portal", new { area = "" });
             }
 
             ModelState.AddModelError("", "Kullanıcı adı veya şifre hatalı!");
@@ -45,7 +45,7 @@ namespace Auth.UI.Areas.Auth.Controllers.AccountController
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            await _authenticationService.LogoutAsync();
+            await _authService.LogoutAsync();
             return RedirectToAction("Login");
         }
     }
