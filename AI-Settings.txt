@@ -1,0 +1,38 @@
+{
+  "project_name": "ALMES Portal Framework",
+  "architecture": ".NET 10 MVC (Modular Architecture)",
+  
+  "rules": [
+    "This is a modular .NET 10 MVC architecture called ALMES.",
+    "The main web project is 'Portal' (located in the /Portal folder).",
+    "All functional UI modules must be compiled directly into the 'Server/Modules/' folder (e.g., Server/Modules/Bom/).",
+    "Folder names and namespaces must strictly follow PascalCase. Never use all-caps 'MODULES' or 'BOM'.",
+    "Active modules are managed dynamically via appsettings.json under the 'ActiveModules' array.",
+    "Always check dependencies and output paths in .csproj files before suggesting structural changes.",
+    "Only provide code snippets for manual entry; proceed step-by-step; show 2-3 code snippets per turn; explain each step."
+  ],
+
+  "system_workflow": {
+    "build_mechanism": [
+      "1. The project uses independent modules that are not tightly coupled to the main Portal project.",
+      "2. When a module UI project (e.g., Bom.UI, Auth.UI) is compiled, its MSBuild targets automatically redirect the output DLL and PDB files.",
+      "3. In Bom.UI.csproj, this is managed via <OutputPath>$(SolutionDir)Server\\Modules\\Bom\\</OutputPath>.",
+      "4. In Auth.UI.csproj, this is managed via a custom PostBuild target named 'CopyModuleUIAssemblies' which copies files to '$(SolutionDir)Server\\Modules\\Auth\\'.",
+      "5. Performing a 'Rebuild Solution' cleans all old artifacts and freshly generates the 'Server/Modules/' folder on the local disk."
+    ],
+    
+    "runtime_execution": [
+      "1. When the user presses F5, the 'Portal' web application boots up via Program.cs.",
+      "2. Program.cs reads the 'ActiveModules' array inside appsettings.json dynamically.",
+      "3. It physically combines paths using 'Path.Combine(AppContext.BaseDirectory, \"Server\", \"Modules\")' to look for allowed modules.",
+      "4. It dynamically loads the module DLLs from disk into the application context using AssemblyLoadContext.",
+      "5. The application connects to SQL Server using the 'DefaultConnection' string found in appsettings.json pointing to the 'ALMES_DB' catalog."
+    ],
+
+    "publish_process": [
+      "1. When deploying the application, the core framework ('Portal' project) is published as the main host executable.",
+      "2. All modular UI and Lib folders must be built and their output DLLs must be explicitly placed into the root 'Server/Modules/' directory in the production environment.",
+      "3. The production 'appsettings.json' must match the case-sensitive PascalCase module folder names to ensure successful dynamic assembly loading on the server."
+    ]
+  }
+}

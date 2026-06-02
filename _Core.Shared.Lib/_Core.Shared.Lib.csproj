@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<Target Name="CopySharedToOutput" AfterTargets="Build">
+		<PropertyGroup>
+			<ServerOutputDir>$(SolutionDir)Server\</ServerOutputDir>
+		</PropertyGroup>
+		<Message Importance="High" Text="[ALMES BUILD] _Core.Shared.Lib DLL'i Server kök dizinine kopyalanıyor..." />
+		<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="$(ServerOutputDir)" />
+	</Target>
+</Project>

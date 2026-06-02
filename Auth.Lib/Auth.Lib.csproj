@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.10" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core.Auth.Lib\Core.Auth.Lib.csproj" />
+  </ItemGroup>
+	
+	<Target Name="PostBuildMacros" BeforeTargets="PostBuildEvent">
+		<PropertyGroup>
+			<ModuleOutputDir>$(SolutionDir)Server\Modules\Auth\</ModuleOutputDir>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="CopyModuleAssemblies" AfterTargets="Build">
+		<Message Importance="High" Text="[ALMES BUILD] Auth.Lib DLL'leri Modules klasörüne kopyalanıyor..." />
+		<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="$(ModuleOutputDir)" />
+		<Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+		<Copy SourceFiles="$(TargetDir)Core.Auth.Lib.dll" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)Core.Auth.Lib.dll')" />
+		<Copy SourceFiles="$(TargetDir)Core.Auth.Lib.pdb" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)Core.Auth.Lib.pdb')" />
+
+	</Target>
+</Project>

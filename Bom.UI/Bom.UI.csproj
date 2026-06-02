@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<OutputType>Library</OutputType>
+		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Bom.Lib\Bom.Lib.csproj" />
+	</ItemGroup>
+
+	<Target Name="PostBuildMacros" BeforeTargets="PostBuildEvent">
+		<PropertyGroup>
+			<ModuleOutputDir>$(SolutionDir)Server\Modules\Bom\</ModuleOutputDir>
+		</PropertyGroup>
+	</Target>
+
+	<Target Name="CopyBomUIAssemblies" AfterTargets="Build">
+		<Message Importance="High" Text="[ALMES BUILD] Bom.UI, Lib ve Core.Lib DLL'leri Modules klasörüne kopyalanıyor..." />
+
+		<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="$(ModuleOutputDir)" />
+		<Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" />
+
+		<Copy SourceFiles="$(TargetDir)Bom.Lib.dll" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)Bom.Lib.dll')" />
+		<Copy SourceFiles="$(TargetDir)Bom.Lib.pdb" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)Bom.Lib.pdb')" />
+
+		<Copy SourceFiles="$(TargetDir)Core.Bom.Lib.dll" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)Core.Bom.Lib.dll')" />
+		<Copy SourceFiles="$(TargetDir)Core.Bom.Lib.pdb" DestinationFolder="$(ModuleOutputDir)" Condition="Exists('$(TargetDir)Core.Bom.Lib.pdb')" />
+	</Target>
+
+	<Target Name="CopyWwwRootToOutput" AfterTargets="Build">
+		<CallTarget Targets="PostBuildMacros" Condition="'$(ModuleOutputDir)' == ''" />
+		<ItemGroup>
+			<WwwRootFiles Include="$(ProjectDir)wwwroot\**\*.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(WwwRootFiles)"
+			  DestinationFolder="$(ModuleOutputDir)wwwroot\%(RecursiveDir)"
+			  SkipUnchangedFiles="true" />
+	</Target>
+
+</Project>

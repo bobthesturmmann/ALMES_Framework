@@ -1,0 +1,26 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="AI-Settings.txt" />
+  </Folder>
+  <Folder Name="/Core/" />
+  <Folder Name="/Core/Core_Libs/">
+    <Project Path="Core.Bom.Lib/Core.Bom.Lib.csproj" />
+    <Project Path="Core.Auth.Lib/Core.Auth.Lib.csproj" Id="95b881a9-24e2-498d-8a5a-a46dd3cef7f6" />
+    <Project Path="_Core.Shared.Lib/_Core.Shared.Lib.csproj" Id="503d9c43-7ff0-494f-8376-b7a4374fa233" />
+  </Folder>
+  <Folder Name="/Core/Core_service/">
+    <Project Path="Core.Service/Core.Service.csproj" />
+  </Folder>
+  <Folder Name="/Modules/" />
+  <Folder Name="/Modules/Bom/">
+    <Project Path="Bom.Lib/Bom.Lib.csproj" />
+    <Project Path="Bom.UI/Bom.UI.csproj" />
+  </Folder>
+  <Folder Name="/Modules/Auth/">
+    <Project Path="Auth.Lib/Auth.Lib.csproj" Id="c66ff45d-d8f0-4cdd-ba9a-39cc96976a3f" />
+    <Project Path="Auth.UI/Auth.UI.csproj" Id="7e6819e8-1120-470d-9fb8-bb8a665c73e7" />
+  </Folder>
+  <Folder Name="/Portal/">
+    <Project Path="Portal/Portal.csproj" />
+  </Folder>
+</Solution>

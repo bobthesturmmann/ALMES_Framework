@@ -1,0 +1,63 @@
+﻿@model List<string>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALMES Enterprise Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+            body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+            .portal-card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s; }
+            .portal-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body>
+
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-dark">ALMES FRAMEWORK</h1>
+            <p class="lead text-muted">Core Management Portal & Module Gateway</p>
+            <span class="badge bg-secondary">v0.0.3 - Portal Server</span>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card portal-card p-4 bg-white mb-4">
+                    <h4 class="mb-3 text-secondary fw-semibold">System Modules</h4>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="list-group">
+                            @foreach (var module in Model)
+                            {
+                                <a href="/@module/Home/Index" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-primary">@module Module</h5>
+                                        <small class="text-muted">Click to launch the application sub-system.</small>
+                                    </div>
+                                    <span class="btn btn-sm btn-outline-primary px-3 rounded-pill">Launch</span>
+                                </a>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center my-3 py-4" role="alert">
+                            <h5 class="alert-heading fw-bold">No Modules Found!</h5>
+                            <p class="mb-0">There are no active application modules detected in the Modules folder.</p>
+                            <small class="text-muted d-block mt-2">Please drop module deployment DLLs into the system path.</small>
+                        </div>
+                    }
+                </div>
+
+                <div class="text-center">
+                    <small class="text-muted">Infrastructure status: <span class="text-success fw-bold">● Operational (Shared Core Ready)</span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
