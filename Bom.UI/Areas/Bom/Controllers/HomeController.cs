@@ -1,6 +1,7 @@
 ﻿using Bom.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Bom.UI.Areas.Bom.Controllers
 {
@@ -17,9 +18,18 @@ namespace Bom.UI.Areas.Bom.Controllers
 
         [Route("Bom")]
         [Route("Bom/[controller]/[action]")]
-        public IActionResult Index()
+        public IActionResult Index(string? productCode)
         {
-            var model = _bomManager.PrepareBomListForUI();
+            List<BomDto> model;
+
+            if (!string.IsNullOrEmpty(productCode))
+            {
+                model = _bomManager.PrepareBomListByProduct(productCode);
+            }
+            else
+            {
+                model = _bomManager.PrepareBomListForUI();
+            }
 
             return View(model);
         }

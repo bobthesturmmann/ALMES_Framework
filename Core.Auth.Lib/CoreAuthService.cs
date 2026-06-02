@@ -1,48 +1,44 @@
 ﻿using System;
-using System.Data;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Data.SqlClient;
 using Core.Service;
+using _Core.Shared.Lib;
 
 namespace Core.Auth.Lib
 {
-    public class CoreAuthService
+    public class CoreAuthService(SqlEngine sqlEngine)
     {
-        private readonly SqlEngine _sqlEngine;
-        private readonly string _companyCode;
-
-        public CoreAuthService(SqlEngine sqlEngine, IConfiguration configuration)
-        {
-            _sqlEngine = sqlEngine;
-            _companyCode = configuration["AlmesSettings:CompanyCode"] ?? "000";
-        }
+        private readonly SqlEngine _sqlEngine = sqlEngine;
 
         public async Task<CoreAuthUser?> ValidateUserInDatabaseAsync(string username, string password)
         {
-            var safeUsername = username.Trim().Replace("'", "''");
+            var cleanUsername = username.Trim();
             var cleanPassword = password.Trim();
 
-            string tableName = $"ALT_{_companyCode}_AUTH_USERS";
-            string query = $"SELECT Id, Username, Email, PasswordHash FROM {tableName} WHERE Username = '{safeUsername}' AND IsActive = 1";
+            List<SqlParameter> parameters = [new SqlParameter("@Username", cleanUsername)];
 
-            List<CoreUserWithPassword> users = _sqlEngine.ExecuteCustomQuery(query, reader =>
-            {
-                return new CoreUserWithPassword
+            List<CoreUserWithPassword> users = _sqlEngine.ReadFromTable(
+                "AUTH",
+                "USERS",
+                (IDataRecord row) => new CoreUserWithPassword
                 {
                     User = new CoreAuthUser
                     {
-                        UserId = Convert.ToInt32(reader["Id"]),
-                        Username = reader["Username"].ToString() ?? string.Empty,
-                        Email = reader["Email"].ToString() ?? string.Empty,
-                        Roles = new List<string> { "Admin" }
+                        UserId = Convert.ToInt32(row["Id"]),
+                        Username = row["Username"].ToString() ?? string.Empty,
+                        Email = row["Email"].ToString() ?? string.Empty,
+                        Roles = ["Admin"],
+                        CookieScheme = AuthConstants.CookieScheme
                     },
-                    PasswordHash = reader["PasswordHash"].ToString() ?? string.Empty
-                };
-            });
+                    PasswordHash = row["PasswordHash"].ToString() ?? string.Empty
+                },
+                parameters
+            );
 
-            if (users != null && users.Count > 0)
+            if (users is { Count: > 0 })
             {
                 var matchedUser = users.First();
                 if (cleanPassword == matchedUser.PasswordHash)
@@ -59,10 +55,11 @@ namespace Core.Auth.Lib
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public List<string> Roles { get; set; } = new List<string>();
+        public List<string> Roles { get; set; } = [];
+        public string CookieScheme { get; set; } = string.Empty;
     }
 
-    internal class CoreUserWithPassword
+    public class CoreUserWithPassword
     {
         public CoreAuthUser User { get; set; } = null!;
         public string PasswordHash { get; set; } = string.Empty;

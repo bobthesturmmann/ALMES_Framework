@@ -3,6 +3,7 @@
 @{
     Layout = null;
 }
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -11,7 +12,6 @@
     <title>ALMES ERP - Ürün Ağaçları (BOM)</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
     <link rel="stylesheet" href="/bom/css/Index.css" />
 </head>
 <body>
@@ -24,7 +24,7 @@
                     <h2 class="fw-bold text-dark m-0">🏭 ALMES ERP — Ürün Ağaçları Listesi (BOM)</h2>
                     <p class="text-muted small mb-0 mt-1">Üretim reçeteleri ve mamul hiyerarşisi yönetim paneli.</p>
                 </div>
-                <span class="badge bg-primary px-3 py-2 rounded-pill">v0.0.9</span>
+                <span class="badge bg-primary px-3 py-2 rounded-pill">v0.0.13</span>
             </div>
 
             <div class="alert info-banner p-3 mb-4 rounded-3 d-flex align-items-center" role="alert">
@@ -34,6 +34,33 @@
                 </div>
             </div>
 
+            <div class="search-panel mb-4 p-3 bg-light rounded-3 border">
+                <form method="get" action="/Bom" class="row g-3 align-items-center">
+                    <div class="col-md-8 col-lg-9">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text"
+                                   name="productCode"
+                                   class="form-control border-start-0 ps-0"
+                                   placeholder="Filtrelemek istediğiniz Mamul Kodunu giriniz... (Örn: M-001)"
+                                   value="@Context.Request.Query["productCode"]" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-lg-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100 fw-semibold">
+                            <i class="bi bi-funnel-fill me-1"></i> Filtrele
+                        </button>
+                        @if (!string.IsNullOrEmpty(Context.Request.Query["productCode"]))
+                        {
+                            <a href="/Bom" class="btn btn-secondary" title="Filtreyi Temizle">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+                        }
+                    </div>
+                </form>
+            </div>
             @if (Model != null && Model.Any())
             {
                 <div class="table-responsive">
@@ -64,8 +91,8 @@
             {
                 <div class="alert alert-warning text-center my-3 py-5 rounded-3" role="alert">
                     <i class="bi bi-exclamation-triangle-fill text-warning display-4 d-block mb-3"></i>
-                    <h5 class="alert-heading fw-bold">Sistemde Kayıtlı Reçete Bulunamadı!</h5>
-                    <p class="mb-0 text-muted">SQL Server tarafındaki view verisi boş veya henüz bir senkronizasyon gerçekleşmedi.</p>
+                    <h5 class="alert-heading fw-bold">Eşleşen Reçete Bulunamadı!</h5>
+                    <p class="mb-0 text-muted">Aradığınız mamul koduna ait SQL Server tarafındaki view verisi boş veya hatalı bir kod girdiniz.</p>
                 </div>
             }
         </div>

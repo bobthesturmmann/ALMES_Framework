@@ -8,17 +8,10 @@ using Core.Auth.Lib;
 
 namespace Auth.Lib
 {
-    public class AuthService : IAuthService
+    public class AuthService(CoreAuthService coreAuthManager, IHttpContextAccessor httpContextAccessor) : IAuthService
     {
-        private readonly CoreAuthService _coreAuthManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private const string CookieScheme = "AlmesSecureCookie";
-
-        public AuthService(CoreAuthService coreAuthManager, IHttpContextAccessor httpContextAccessor)
-        {
-            _coreAuthManager = coreAuthManager;
-            _httpContextAccessor = httpContextAccessor;
-        }
+        private readonly CoreAuthService _coreAuthManager = coreAuthManager;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         private HttpContext? HttpContext => _httpContextAccessor.HttpContext;
 
@@ -28,23 +21,22 @@ namespace Auth.Lib
 
             var coreUser = await _coreAuthManager.ValidateUserInDatabaseAsync(username, password);
 
-            if (coreUser != null)
+            if (coreUser is not null)
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, coreUser.UserId.ToString()),
-                    new Claim(ClaimTypes.Name, coreUser.Username),
-                    new Claim(ClaimTypes.Email, coreUser.Email)
-                };
+                List<Claim> claims = [
+                    new(ClaimTypes.NameIdentifier, coreUser.UserId.ToString()),
+                    new(ClaimTypes.Name, coreUser.Username),
+                    new(ClaimTypes.Email, coreUser.Email)
+                ];
 
                 foreach (var role in coreUser.Roles)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
 
-                var claimsIdentity = new ClaimsIdentity(claims, CookieScheme);
+                var claimsIdentity = new ClaimsIdentity(claims, coreUser.CookieScheme);
 
-                await HttpContext.SignInAsync(CookieScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
+                await HttpContext.SignInAsync(coreUser.CookieScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties
                 {
                     IsPersistent = rememberMe,
                     ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
@@ -60,7 +52,7 @@ namespace Auth.Lib
         {
             if (HttpContext != null)
             {
-                await HttpContext.SignOutAsync(CookieScheme);
+                await HttpContext.SignOutAsync("AlmesSecureCookie");
             }
         }
     }
