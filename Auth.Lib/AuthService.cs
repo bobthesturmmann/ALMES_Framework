@@ -19,7 +19,7 @@ namespace Auth.Lib
         {
             if (HttpContext == null) return false;
 
-            var coreUser = await _coreAuthManager.ValidateUserInDatabaseAsync(username, password);
+            var coreUser = _coreAuthManager.ValidateUserInDatabase(username, password);
 
             if (coreUser is not null)
             {

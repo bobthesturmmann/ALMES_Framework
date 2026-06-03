@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Core.Service;
+using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Data.SqlClient;
-using Core.Service;
-using _Core.Shared.Lib;
 
 namespace Core.Auth.Lib
 {
@@ -13,14 +11,17 @@ namespace Core.Auth.Lib
     {
         private readonly SqlEngine _sqlEngine = sqlEngine;
 
-        public async Task<CoreAuthUser?> ValidateUserInDatabaseAsync(string username, string password)
+        public CoreAuthUser? ValidateUserInDatabase(string username, string password)
         {
             var cleanUsername = username.Trim();
             var cleanPassword = password.Trim();
 
-            List<SqlParameter> parameters = [new SqlParameter("@Username", cleanUsername)];
+            List<SqlParameter> parameters = [
+                new SqlParameter("@IslemTipi", 1),
+                new SqlParameter("@Username", cleanUsername)
+            ];
 
-            List<CoreUserWithPassword> users = _sqlEngine.ReadFromTable(
+            List<CoreUserWithPassword> users = _sqlEngine.ExecuteProcedure(
                 "AUTH",
                 "USERS",
                 (IDataRecord row) => new CoreUserWithPassword
@@ -31,7 +32,7 @@ namespace Core.Auth.Lib
                         Username = row["Username"].ToString() ?? string.Empty,
                         Email = row["Email"].ToString() ?? string.Empty,
                         Roles = ["Admin"],
-                        CookieScheme = AuthConstants.CookieScheme
+                        CookieScheme = "AlmesSecureCookie"
                     },
                     PasswordHash = row["PasswordHash"].ToString() ?? string.Empty
                 },
@@ -41,6 +42,7 @@ namespace Core.Auth.Lib
             if (users is { Count: > 0 })
             {
                 var matchedUser = users.First();
+
                 if (cleanPassword == matchedUser.PasswordHash)
                 {
                     return matchedUser.User;

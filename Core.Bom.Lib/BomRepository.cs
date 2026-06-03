@@ -24,15 +24,20 @@ namespace Core.Bom.Lib
                 throw new UnauthorizedAccessException("Çekirdek Güvenlik İhlali: Bu veriyi okumak için giriş yapmalısınız!");
             }
 
-            return _sqlEngine.ReadFromView(
+            List<SqlParameter> parameters = [
+                new SqlParameter("@IslemTipi", 1),
+            ];
+
+            return _sqlEngine.ExecuteProcedure(
                 "BOM",
-                "RECETE_LISTESI",
+                "RECETE_SORGULA",
                 row => new BomViewEntity
                 {
                     RECETE_KODU = row["RECETE_KODU"].ToString()!,
                     MAMUL_KODU = row["MAMUL_KODU"].ToString()!,
                     RECETE_ADI = row["RECETE_ADI"].ToString()!
-                }
+                },
+                parameters
             );
         }
 
@@ -43,21 +48,21 @@ namespace Core.Bom.Lib
                 throw new UnauthorizedAccessException("Çekirdek Güvenlik İhlali: Bu veriyi okumak için giriş yapmalısınız!");
             }
 
-            var parameters = new List<SqlParameter>
-            {
-                new SqlParameter("@MAMUL_KODU", productCode)
-            };
+            List<SqlParameter> parameters = [
+                new SqlParameter("@IslemTipi", 2),
+                new SqlParameter("@FiltreDegeri", productCode.Trim())
+            ];
 
-            return _sqlEngine.ReadFromView(
+            return _sqlEngine.ExecuteProcedure(
                 "BOM",
-                "RECETE_LISTESI",
+                "RECETE_SORGULA",
                 row => new BomViewEntity
                 {
                     RECETE_KODU = row["RECETE_KODU"].ToString()!,
                     MAMUL_KODU = row["MAMUL_KODU"].ToString()!,
                     RECETE_ADI = row["RECETE_ADI"].ToString()!
                 },
-                parameters // Parametre listesini fırlattık.
+                parameters
             );
         }
     }
