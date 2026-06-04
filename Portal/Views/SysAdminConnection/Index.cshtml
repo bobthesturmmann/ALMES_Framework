@@ -1,0 +1,84 @@
+﻿@model List<_Core.Shared.Lib.SysConnectionModel>
+@{
+    ViewData["Title"] = "Almes Framework - Bağlantı Matrix Kontrolü";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0">
+                <i class="fas fa-network-wired me-2 text-warning"></i> Almes Modül & Bağlantı Yönetimi
+            </h5>
+            <a href="@Url.Action("Save", "SysAdminConnection")" class="btn btn-success btn-md px-3 shadow-sm">
+                <i class="fas fa-plus-circle me-1"></i> Yeni Bağlantı Tanımla
+            </a>
+        </div>
+        
+        <div class="card-body bg-light">
+            <div class="table-responsive rounded shadow-sm bg-white p-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="ps-3">Modül</th>
+                            <th>Firma No</th>
+                            <th>Dönem (Devir)</th>
+                            <th>Özel Connection String (Opsiyonel)</th>
+                            <th class="text-center" style="width: 220px;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    <i class="fas fa-info-circle me-1"></i> Tanımlı özel bağlantı yok. Sistem varsayılan ayarlarla çalışıyor.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-3">
+                                        <span class="badge bg-dark px-3 py-2 fs-6">@item.ModuleName</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary px-2 py-2">Firma: @item.FirmaNo</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-primary fw-bold">@item.DonemNo</span>
+                                    </td>
+                                    <td>
+                                        @if (string.IsNullOrEmpty(item.ConnectionString))
+                                        {
+                                            <span class="badge bg-light text-dark border">
+                                                <i class="fas fa-magic text-info me-1"></i> [DefaultConnection Kullanılıyor]
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-success font-monospace bg-light p-1 rounded d-block border text-break">
+                                                @item.ConnectionString
+                                            </small>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a href="@Url.Action("Save", "SysAdminConnection", new { id = item.Id })" class="btn btn-warning btn-sm px-3 fw-bold text-dark" title="Düzenle">
+                                                <i class="fas fa-pencil-alt me-1"></i> Düzenle
+                                            </a>
+                                            <a href="@Url.Action("Delete", "SysAdminConnection", new { id = item.Id })" class="btn btn-danger btn-sm px-3 fw-bold text-white" onclick="return confirm('Bu ayarı silmek istediğinize emin misiniz?')" title="Sil">
+                                                <i class="fas fa-trash-alt me-1"></i> Sil
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

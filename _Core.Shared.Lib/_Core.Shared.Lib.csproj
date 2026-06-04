@@ -12,4 +12,10 @@
 		<Message Importance="High" Text="[ALMES BUILD] _Core.Shared.Lib DLL'i Server kök dizinine kopyalanıyor..." />
 		<Copy SourceFiles="$(TargetDir)$(TargetName).dll" DestinationFolder="$(ServerOutputDir)" />
 	</Target>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.8" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Core.Service\Core.Service.csproj" />
+	</ItemGroup>
 </Project>

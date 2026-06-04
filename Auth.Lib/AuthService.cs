@@ -52,7 +52,7 @@ namespace Auth.Lib
         {
             if (HttpContext != null)
             {
-                await HttpContext.SignOutAsync("AlmesSecureCookie");
+                await HttpContext.SignOutAsync(_Core.Shared.Lib.AuthConstants.CookieScheme);
             }
         }
     }

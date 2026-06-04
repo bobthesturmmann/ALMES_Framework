@@ -13,6 +13,7 @@ builder.Services.AddAuthentication(AuthConstants.CookieScheme)
         options.LoginPath = "/Auth/Account/Login";
         options.LogoutPath = "/Auth/Account/Logout";
         options.Cookie.Name = AuthConstants.CookieScheme;
+        options.AccessDeniedPath = "/Auth/Account/Login";
     });
 
 builder.Services.AddAuthorization();
@@ -89,6 +90,8 @@ if (embeddedProviders.Any())
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSingleton<SqlEngine>();
+
+builder.Services.AddScoped<IModuleConnectionProvider, ModuleConnectionProvider>();
 
 var activeModules = builder.Configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
 

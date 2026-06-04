@@ -1,29 +1,29 @@
 ﻿using Core.Service;
-using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using _Core.Shared.Lib;
+using BCrypt.Net;
 
 namespace Core.Auth.Lib
 {
-    public class CoreAuthService(SqlEngine sqlEngine)
+    public class CoreAuthService(SqlEngine sqlEngine, IModuleConnectionProvider connectionProvider)
     {
         private readonly SqlEngine _sqlEngine = sqlEngine;
+        private readonly IModuleConnectionProvider _connectionProvider = connectionProvider;
 
-        public CoreAuthUser? ValidateUserInDatabase(string username, string password)
+        public CoreAuthUser? ValidateUserInDatabase(string username, string password, string firmaNo = "", string donemNo = "")
         {
-            var cleanUsername = username.Trim();
+            var cleanUsername = username.Trim().Replace("'", "''");
             var cleanPassword = password.Trim();
 
-            List<SqlParameter> parameters = [
-                new SqlParameter("@IslemTipi", 1),
-                new SqlParameter("@Username", cleanUsername)
-            ];
+            string connectionString = _connectionProvider.GetConnectionString("AUTH", firmaNo, donemNo);
+            string execCommand = $"EXEC ALP_AUTH_USERS 1, '{cleanUsername}'";
 
-            List<CoreUserWithPassword> users = _sqlEngine.ExecuteProcedure(
-                "AUTH",
-                "USERS",
+            List<CoreUserWithPassword> users = _sqlEngine.ExecuteRawQuery(
+                connectionString,
+                execCommand,
                 (IDataRecord row) => new CoreUserWithPassword
                 {
                     User = new CoreAuthUser
@@ -31,24 +31,28 @@ namespace Core.Auth.Lib
                         UserId = Convert.ToInt32(row["Id"]),
                         Username = row["Username"].ToString() ?? string.Empty,
                         Email = row["Email"].ToString() ?? string.Empty,
-                        Roles = ["Admin"],
-                        CookieScheme = "AlmesSecureCookie"
+                        Roles = row["Roles"].ToString()?.Split(',').ToList() ?? ["Admin"],
+                        CookieScheme = _Core.Shared.Lib.AuthConstants.CookieScheme
                     },
                     PasswordHash = row["PasswordHash"].ToString() ?? string.Empty
-                },
-                parameters
+                }
             );
 
             if (users is { Count: > 0 })
             {
                 var matchedUser = users.First();
 
-                if (cleanPassword == matchedUser.PasswordHash)
+                if (BCrypt.Net.BCrypt.Verify(cleanPassword, matchedUser.PasswordHash))
                 {
                     return matchedUser.User;
                 }
             }
             return null;
+        }
+
+        public string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
     }
 

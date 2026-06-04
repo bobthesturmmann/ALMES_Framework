@@ -1,5 +1,4 @@
-﻿@model List<string>
-
+﻿@model List<_Core.Shared.Lib.ResolvedModuleSettings>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,38 +6,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ALMES Enterprise Portal</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-            body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-            .portal-card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s; }
-            .portal-card:hover { transform: translateY(-5px); }
+            body {
+                background-color: #f8f9fa;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            .portal-card {
+                border: none;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                transition: transform 0.2s;
+            }
+
+                .portal-card:hover {
+                    transform: translateY(-5px);
+                }
+
+            .info-panel {
+                background-color: #f1f3f5;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 0.85rem;
+            }
     </style>
 </head>
 <body>
 
     <div class="container py-5">
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold text-dark">ALMES FRAMEWORK</h1>
-            <p class="lead text-muted">Core Management Portal & Module Gateway</p>
-            <span class="badge bg-secondary">v0.0.3 - Portal Server</span>
+        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-4">
+            <div class="text-start">
+                <h1 class="display-5 fw-bold text-dark mb-0">ALMES FRAMEWORK</h1>
+                <p class="lead text-muted mb-0">Core Management Portal & Module Gateway</p>
+            </div>
         </div>
 
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-9">
                 <div class="card portal-card p-4 bg-white mb-4">
-                    <h4 class="mb-3 text-secondary fw-semibold">System Modules</h4>
+                    <h4 class="mb-4 text-secondary fw-semibold"><i class="fas fa-th-large me-2"></i>System Modules</h4>
 
                     @if (Model != null && Model.Any())
                     {
-                        <div class="list-group">
+                        <div class="list-group gap-3">
                             @foreach (var module in Model)
                             {
-                                <a href="/@module/Home/Index" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
-                                    <div>
-                                        <h5 class="mb-1 fw-bold text-primary">@module Module</h5>
-                                        <small class="text-muted">Click to launch the application sub-system.</small>
+                                <div class="list-group-item rounded border d-flex flex-column flex-md-row justify-content-between align-items-md-center p-3 bg-white shadow-sm">
+                                    <div class="mb-3 mb-md-0">
+                                        <h5 class="mb-1 fw-bold text-primary">@module.ModuleName Module</h5>
+                                        <small class="text-muted d-block mb-2">Click to launch the application sub-system.</small>
+
+                                        @if (!string.IsNullOrEmpty(module.FirmaNo))
+                                        {
+                                            <div class="info-panel border d-flex gap-4 mt-2">
+                                                <div><span class="text-muted">Firma No:</span> <strong class="text-dark">@module.FirmaNo</strong></div>
+                                                <div><span class="text-muted">Devir:</span> <strong class="text-primary">@module.DonemNo</strong></div>
+                                                <div><span class="text-muted">Prosedür Ön Eki:</span> <code class="text-danger fw-bold">@module.ProcedurePrefix<span>PROSEDUR_ADI</span></code></div>
+                                            </div>
+                                        }
                                     </div>
-                                    <span class="btn btn-sm btn-outline-primary px-3 rounded-pill">Launch</span>
-                                </a>
+                                    <div>
+                                        <a href="/@module.ModuleName/Home/Index" class="btn btn-md btn-primary px-4 rounded-pill fw-bold shadow-sm">
+                                            <i class="fas fa-external-link-alt me-1"></i> Launch
+                                        </a>
+                                    </div>
+                                </div>
                             }
                         </div>
                     }
@@ -52,12 +85,11 @@
                     }
                 </div>
 
-                <div class="text-center">
+                <div class="text-center mt-4">
                     <small class="text-muted">Infrastructure status: <span class="text-success fw-bold">● Operational (Shared Core Ready)</span></small>
                 </div>
             </div>
         </div>
     </div>
-
 </body>
 </html>
