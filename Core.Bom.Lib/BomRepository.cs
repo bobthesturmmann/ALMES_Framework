@@ -41,8 +41,7 @@ namespace Core.Bom.Lib
             );
         }
 
-        public List<BomViewEntity> GetRecipesByProduct(string productCode, string firmaNo = "", string donemNo = "")
-        {
+    public List<BomViewEntity> GetRecipesByProduct(string productCode, string firmaNo = "", string donemNo = "")        {
             if (!_authBridge.IsUserLoggedIn())
             {
                 throw new UnauthorizedAccessException("Çekirdek Güvenlik İhlali: Bu veriyi okumak için giriş yapmalısınız!");

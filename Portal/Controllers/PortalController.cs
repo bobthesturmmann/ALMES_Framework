@@ -21,13 +21,20 @@ namespace Portal.Controllers
         public IActionResult Index()
         {
             var availableModules = new List<ResolvedModuleSettings>();
-            var activeModules = _configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
-            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 
+            var activeModules = _configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
+            var hiddenModules = _configuration.GetSection("HiddenModules").Get<List<string>>() ?? new List<string>();
+
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool isSysAdmin = User.IsInRole("SysAdmin");
 
             foreach (var moduleName in activeModules)
             {
+                if (hiddenModules.Contains(moduleName, StringComparer.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 var uiAssemblyExists = loadedAssemblies.Any(a =>
                     a.GetName().Name != null &&
                     a.GetName().Name!.Equals($"{moduleName}.UI", StringComparison.OrdinalIgnoreCase));
