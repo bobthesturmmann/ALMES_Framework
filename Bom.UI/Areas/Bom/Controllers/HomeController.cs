@@ -19,19 +19,21 @@ namespace Bom.UI.Areas.Bom.Controllers
 
         [Route("Bom")]
         [Route("Bom/[controller]/[action]")]
-        public IActionResult Index(string? productCode)
+        public IActionResult Index(string productCode, int mode = 1)
         {
             List<BomDto> model;
 
             if (!string.IsNullOrEmpty(productCode))
             {
+                mode = 3;
                 model = _bomManager.PrepareBomListByProduct(productCode);
             }
             else
             {
-                model = _bomManager.PrepareBomListForUI();
+                model = _bomManager.PrepareBomListForUI(mode);
             }
 
+            ViewBag.ActiveMode = mode;
             return View(model);
         }
     }

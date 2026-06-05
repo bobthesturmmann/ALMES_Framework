@@ -3,7 +3,6 @@
 @{
     Layout = null;
 }
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -12,89 +11,129 @@
     <title>ALMES ERP - Ürün Ağaçları (BOM)</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="/bom/css/Index.css" />
+    <style>
+            body { background-color: #f8f9fa; font-size: 14px; font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; }
+            .erp-box { border: 1px solid #dee2e6; border-radius: 4px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+            .erp-header { background-color: #212529; color: #ffffff; border-radius: 4px 4px 0 0; }
+            .table-flat th { background-color: #f1f3f5 !important; color: #495057; font-weight: 600; border-bottom: 2px solid #dee2e6; }
+            .table-flat td { border-bottom: 1px solid #eee; }
+            .code-block { font-family: monospace; background: #f8f9fa; border: 1px solid #e9ecef; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+    </style>
 </head>
 <body>
 
-    <div class="container py-5">
-        <div class="card bom-card p-4 bg-white">
+    <div class="container-fluid py-4 px-4">
+        <div class="erp-box">
 
-            <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-4">
+            <div class="erp-header p-3 d-flex align-items-center justify-content-between">
                 <div>
-                    <h2 class="fw-bold text-dark m-0">🏭 ALMES ERP — Ürün Ağaçları Listesi (BOM)</h2>
-                    <p class="text-muted small mb-0 mt-1">Üretim reçeteleri ve mamul hiyerarşisi yönetim paneli.</p>
+                    <h5 class="fw-bold m-0"><i class="bi bi-cpu-fill me-2"></i>ALMES ERP — Ürün Ağaçları Listesi (BOM)</h5>
                 </div>
-                <span class="badge bg-primary px-3 py-2 rounded-pill">v0.0.13</span>
+                <span class="badge bg-secondary font-monospace">v0.0.18</span>
             </div>
 
-            <div class="alert info-banner p-3 mb-4 rounded-3 d-flex align-items-center" role="alert">
-                <i class="bi bi-database-fill-check fs-4 me-3"></i>
-                <div>
-                    Bilgi, veritabanındaki <strong class="font-monospace">ALV_000_BOM_RECETE_LISTESI</strong> view'ı üzerinden anlık ve canlı olarak çekilmektedir.
+            <div class="p-3">
+                <div class="alert alert-secondary p-2 mb-3 rounded-1 d-flex align-items-center border" role="alert">
+                    <i class="bi bi-database-fill-gear text-dark fs-5 me-2"></i>
+                    <div class="small text-dark">
+                        Sistem Durumu: Veriler Logo ERP veritabanından <span class="code-block">ALP_BOM_GET_RECETE</span> saklı yordamı ile canlı olarak analiz edilmektedir.
+                    </div>
                 </div>
-            </div>
-
-            <div class="search-panel mb-4 p-3 bg-light rounded-3 border">
-                <form method="get" action="/Bom" class="row g-3 align-items-center">
-                    <div class="col-md-8 col-lg-9">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0 text-muted">
-                                <i class="bi bi-search"></i>
-                            </span>
-                            <input type="text"
-                                   name="productCode"
-                                   class="form-control border-start-0 ps-0"
-                                   placeholder="Filtrelemek istediğiniz Mamul Kodunu giriniz... (Örn: M-001)"
-                                   value="@Context.Request.Query["productCode"]" />
+                <div class="btn-group btn-group-sm mb-3 w-100" role="group">
+                    <a href="/Bom?mode=1" class="btn @(ViewBag.ActiveMode == 1 ? "btn-dark" : "btn-outline-dark") fw-semibold py-2">
+                        <i class="bi bi-list-nested me-1"></i> (Mod 1) Tüm Reçete Ağacını Listele
+                    </a>
+                    <a href="/Bom?mode=2" class="btn @(ViewBag.ActiveMode == 2 ? "btn-dark" : "btn-outline-dark") fw-semibold py-2">
+                        <i class="bi bi-grid-3x3-gap-fill me-1"></i> (Mod 2) Sadece Reçetesi Olan Ürünler (Özet)
+                    </a>
+                    <button class="btn @(ViewBag.ActiveMode == 3 ? "btn-dark" : "btn-outline-dark") fw-semibold py-2" disabled>
+                        <i class="bi bi-eye-fill me-1"></i> (Mod 3) Tek Ürün Detay Görünümü @(ViewBag.ActiveMode == 3 ? "(Aktif)" : "")
+                    </button>
+                </div>
+                <div class="p-3 mb-3 bg-light rounded-1 border">
+                    <form method="get" action="/Bom" class="row g-2 align-items-center">
+                        <div class="col-md-9">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                                <input type="text"
+                                       name="productCode"
+                                       class="form-control border-start-0 ps-0"
+                                       placeholder="Aranacak Mamul Kodu (Örn: M-001)"
+                                       value="@Context.Request.Query["productCode"]" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-md-4 col-lg-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary w-100 fw-semibold">
-                            <i class="bi bi-funnel-fill me-1"></i> Filtrele
-                        </button>
-                        @if (!string.IsNullOrEmpty(Context.Request.Query["productCode"]))
-                        {
-                            <a href="/Bom" class="btn btn-secondary" title="Filtreyi Temizle">
-                                <i class="bi bi-x-lg"></i>
-                            </a>
-                        }
-                    </div>
-                </form>
-            </div>
-            @if (Model != null && Model.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover bom-table align-middle border">
-                        <thead>
-                            <tr>
-                                <th scope="col" class="py-3 px-4">Reçete Kodu</th>
-                                <th scope="col" class="py-3">Mamul Kodu</th>
-                                <th scope="col" class="py-3">Reçete Adı</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
+                        <div class="col-md-3 d-flex gap-1">
+                            <button type="submit" class="btn btn-dark btn-sm w-100 fw-semibold">
+                                <i class="bi bi-funnel-fill me-1"></i> Sorgula
+                            </button>
+                            @if (!string.IsNullOrEmpty(Context.Request.Query["productCode"]))
                             {
-                                <tr>
-                                    <td class="px-4">
-                                        <span class="recipe-badge"><i class="bi bi-hash me-1"></i>@item.RecipeCode</span>
-                                    </td>
-                                    <td class="fw-semibold text-secondary">@item.ProductCode</td>
-                                    <td class="text-dark">@item.RecipeName</td>
-                                </tr>
+                                <a href="/Bom" class="btn btn-outline-secondary btn-sm" title="Temizle">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
                             }
-                        </tbody>
-                    </table>
+                        </div>
+                    </form>
                 </div>
-            }
-            else
-            {
-                <div class="alert alert-warning text-center my-3 py-5 rounded-3" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill text-warning display-4 d-block mb-3"></i>
-                    <h5 class="alert-heading fw-bold">Eşleşen Reçete Bulunamadı!</h5>
-                    <p class="mb-0 text-muted">Aradığınız mamul koduna ait SQL Server tarafındaki view verisi boş veya hatalı bir kod girdiniz.</p>
-                </div>
-            }
+
+                @if (Model != null && Model.Any())
+                {
+                    <div class="table-responsive border rounded-1">
+                        <table class="table table-sm table-hover table-flat align-middle m-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="text-center py-2" style="width: 80px;">S.No</th>
+                                    <th scope="col" class="py-2">Ana Ürün Kodu</th>
+                                    <th scope="col" class="py-2">Ana Ürün Adı</th>
+                                    <th scope="col" class="text-end py-2">Ana Miktar</th>
+                                    <th scope="col" class="py-2">Birim</th>
+                                    <th scope="col" class="py-2 border-start text-primary">Alt Bileşen Kodu</th>
+                                    <th scope="col" class="py-2 text-primary">Alt Bileşen Adı</th>
+                                    <th scope="col" class="text-end py-2 text-primary">İhtiyaç Miktarı</th>
+                                    <th scope="col" class="py-2 text-primary">Birim</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int siraNo = 1;
+                                }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="text-center font-monospace text-muted">@siraNo</td>
+                                        <td class="fw-bold text-dark">@item.MainProductCode</td>
+                                        <td class="text-secondary small">@item.MainProductName</td>
+                                        <td class="text-end fw-bold">@item.MainQuantity.ToString("N2")</td>
+                                        <td><span class="badge bg-light text-dark border">@item.MainUnit</span></td>
+
+                                        @if (!string.IsNullOrEmpty(item.SubProductCode))
+                                        {
+                                            <td class="fw-bold text-primary border-start">@item.SubProductCode</td>
+                                            <td class="text-secondary small">@item.SubProductName</td>
+                                            <td class="text-end fw-bold text-primary">@item.SubQuantity.ToString("N2")</td>
+                                            <td><span class="badge bg-light text-primary border border-primary-subtle">@item.SubUnit</span></td>
+                                        }
+                                        else
+                                        {
+                                            <td colspan="4" class="text-center text-muted border-start bg-light small italic">Alt bileşen detayları gizlendi</td>
+                                        }
+                                    </tr>
+                                    siraNo++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="border rounded-1 p-5 text-center bg-white my-2">
+                        <i class="bi bi-folder-x text-muted display-6 d-block mb-2"></i>
+                        <h6 class="fw-bold text-secondary">Eşleşen Üretim Ağacı Kaydı Bulunamadı</h6>
+                        <p class="text-muted small mb-0">Girilen koda ait aktif reçete yapısı bulunmuyor veya filtre kriteri geçersiz.</p>
+                    </div>
+                }
+            </div>
+
         </div>
     </div>
 
