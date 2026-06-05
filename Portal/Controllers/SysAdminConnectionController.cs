@@ -4,6 +4,7 @@ using _Core.Shared.Lib;
 using Core.Service;
 using Portal.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Portal.Controllers
@@ -35,7 +36,8 @@ namespace Portal.Controllers
                 GlobalSirketKodu = globalSettings.SirketKodu,
                 GlobalDonemKodu = globalSettings.DonemKodu,
                 GlobalConnectionString = globalSettings.GlobalConnectionString,
-                ActiveModules = _appSettingsService.GetActiveModules()
+                ActiveModules = _appSettingsService.GetActiveModules(),
+                ShownModules = _appSettingsService.GetShownModules()
             };
 
             string execCommand = "EXEC ALP_SYS_CONNECTIONS 1";
@@ -68,6 +70,16 @@ namespace Portal.Controllers
         public IActionResult SaveGlobalSettings(string globalSirketKodu, string globalDonemKodu, string globalConnectionString)
         {
             _appSettingsService.UpdateGlobalSettings(globalSirketKodu, globalDonemKodu, globalConnectionString);
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public IActionResult SaveShownModules(SysAdminViewModel postModel)
+        {
+            var selectedList = postModel.SelectedShownModules ?? new List<string>();
+
+            _appSettingsService.UpdateShownModules(selectedList);
+
             return RedirectToAction("Index");
         }
 

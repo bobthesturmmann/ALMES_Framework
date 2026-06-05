@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +8,31 @@ namespace Portal.Controllers
 {
     public class PortalController : Controller
     {
-        private readonly IConfiguration _configuration;
         private readonly IModuleConnectionProvider _connectionProvider;
+        private readonly IAppSettingsService _appSettingsService;
 
-        public PortalController(IConfiguration configuration, IModuleConnectionProvider connectionProvider)
+        public PortalController(IModuleConnectionProvider connectionProvider, IAppSettingsService appSettingsService)
         {
-            _configuration = configuration;
             _connectionProvider = connectionProvider;
+            _appSettingsService = appSettingsService;
         }
 
         public IActionResult Index()
         {
             var availableModules = new List<ResolvedModuleSettings>();
 
-            var activeModules = _configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
-            var hiddenModules = _configuration.GetSection("HiddenModules").Get<List<string>>() ?? new List<string>();
+            var activeModules = _appSettingsService.GetActiveModules();
+
+            var shownModules = _appSettingsService.GetShownModules();
 
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
             bool isSysAdmin = User.IsInRole("SysAdmin");
 
             foreach (var moduleName in activeModules)
             {
-                if (hiddenModules.Contains(moduleName, StringComparer.OrdinalIgnoreCase))
+                string currentMod = moduleName.ToUpper().Trim();
+
+                if (!shownModules.Contains(currentMod))
                 {
                     continue;
                 }

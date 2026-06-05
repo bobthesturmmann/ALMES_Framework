@@ -1,6 +1,7 @@
 using _Core.Shared.Lib;
 using Core.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.FileProviders;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -16,7 +17,11 @@ builder.Services.AddAuthentication(AuthConstants.CookieScheme)
         options.AccessDeniedPath = "/Auth/Account/Login";
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ModuleControl", policy =>
+        policy.Requirements.Add(new _Core.Shared.Lib.ModuleRequirement()));
+});
 
 var mvcBuilder = builder.Services.AddControllersWithViews();
 var embeddedProviders = new List<IFileProvider>();
@@ -143,7 +148,9 @@ foreach (var assembly in loadedAssemblies)
             var interfaces = type.GetInterfaces();
             foreach (var @interface in interfaces)
             {
-                if (@interface.Name == "I" + type.Name || @interface.Namespace?.Contains("Shared") == true)
+                if (@interface.Name == "I" + type.Name ||
+                    @interface.Namespace?.Contains("Shared") == true ||
+                    @interface.Name == "IAuthorizationHandler")
                 {
                     builder.Services.AddScoped(@interface, type);
                 }

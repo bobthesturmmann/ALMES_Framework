@@ -7,6 +7,7 @@ namespace Bom.UI.Areas.Bom.Controllers
 {
     [Area("Bom")]
     [Authorize]
+    [Authorize(Policy = "ModuleControl")]
     public class HomeController : Controller
     {
         private readonly BomManager _bomManager;
