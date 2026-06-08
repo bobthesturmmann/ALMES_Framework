@@ -70,7 +70,7 @@ namespace Portal.Controllers
         public IActionResult SaveGlobalSettings(string globalSirketKodu, string globalDonemKodu, string globalConnectionString)
         {
             _appSettingsService.UpdateGlobalSettings(globalSirketKodu, globalDonemKodu, globalConnectionString);
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "SysAdminConnection");
         }
 
         [HttpPost]
@@ -80,7 +80,7 @@ namespace Portal.Controllers
 
             _appSettingsService.UpdateShownModules(selectedList);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "SysAdminConnection");
         }
 
         [HttpPost]
@@ -97,14 +97,14 @@ namespace Portal.Controllers
 
             _sqlEngine.ExecuteRawQuery<int>(GetMasterDb(), execCommand, row => 0);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "SysAdminConnection");
         }
 
         public IActionResult Delete(int id)
         {
             string execCommand = $"EXEC ALP_SYS_CONNECTIONS 4, @Id = {id}";
             _sqlEngine.ExecuteRawQuery<int>(GetMasterDb(), execCommand, row => 0);
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "SysAdminConnection");
         }
     }
 }

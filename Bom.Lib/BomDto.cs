@@ -14,4 +14,13 @@
         public string SubUnit { get; set; } = string.Empty;
         public string SubUnitSet { get; set; } = string.Empty;
     }
+
+    public class PagedBomResult
+    {
+        public List<BomDto> Items { get; set; } = new List<BomDto>();
+        public int TotalCount { get; set; }
+        public int CurrentPage { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+    }
 }

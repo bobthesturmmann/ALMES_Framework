@@ -13,9 +13,9 @@ namespace Bom.Lib
             _bomRepository = bomRepository;
         }
 
-        public List<BomDto> PrepareBomListForUI(int mode = 1)
+        public List<BomDto> PrepareBomListForUI(int mode = 1, string searchCode = "")
         {
-            var data = _bomRepository.GetAllRecipes(string.Empty, string.Empty, mode);
+            var data = _bomRepository.GetAllRecipes(string.Empty, string.Empty, mode, searchCode);
             return MapToDto(data);
         }
 
@@ -23,6 +23,25 @@ namespace Bom.Lib
         {
             var data = _bomRepository.GetRecipesByProduct(productCode, string.Empty, string.Empty);
             return MapToDto(data);
+        }
+
+        public PagedBomResult PreparePagedBomResult(int mode = 1, string searchCode = "", int page = 1, int pageSize = 20)
+        {
+            var rawData = _bomRepository.GetAllRecipes(string.Empty, string.Empty, mode, searchCode);
+            var allDtos = MapToDto(rawData);
+
+            var pagedItems = allDtos
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            return new PagedBomResult
+            {
+                Items = pagedItems,
+                TotalCount = allDtos.Count,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
         }
 
         private List<BomDto> MapToDto(List<BomViewEntity> data)

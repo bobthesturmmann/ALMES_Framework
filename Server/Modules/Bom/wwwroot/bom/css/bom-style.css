@@ -1,0 +1,58 @@
+﻿
+body {
+    background-color: #f8f9fa;
+    font-size: 14px;
+    font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.erp-box {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.erp-header {
+    background-color: #212529;
+    color: #ffffff;
+    border-radius: 4px 4px 0 0;
+}
+
+.table-flat th {
+    background-color: #f1f3f5 !important;
+    color: #495057;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-flat td {
+    border-bottom: 1px solid #eee;
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+    .clickable-row:hover {
+        background-color: #f1f3f5 !important;
+    }
+
+.erp-footer-bar {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 8px 16px;
+    border-radius: 0 0 4px 4px;
+}
+
+.pagination-sm .page-link {
+    color: #212529;
+    border-color: #dee2e6;
+    padding: 4px 10px;
+}
+
+.pagination-sm .page-item.active .page-link {
+    background-color: #212529;
+    border-color: #212529;
+    color: #fff;
+}

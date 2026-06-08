@@ -26,7 +26,7 @@
         <div class="card shadow-sm border-0 rounded-3 mb-4 bg-dark text-white">
             <div class="card-body p-4">
                 <h5 class="fw-bold mb-3 text-warning"><i class="fas fa-sliders-h me-2"></i>Global AppSettings Parametreleri</h5>
-                <form asp-action="SaveGlobalSettings" method="post" class="row g-3 align-items-end">
+                <form asp-controller="SysAdminConnection" asp-action="SaveGlobalSettings" method="post" class="row g-3 align-items-end">
                     <div class="col-md-2">
                         <label class="form-label small text-muted">Şirket Kodu</label>
                         <input type="text" name="globalSirketKodu" value="@Model.GlobalSirketKodu" class="form-control bg-secondary text-white border-0" required />
@@ -51,7 +51,7 @@
                 <h5 class="fw-bold mb-2 text-success"><i class="fas fa-eye me-2"></i>Portal Ana Sayfa Görünürlük Ayarları (Şifreli ShownModules)</h5>
                 <p class="text-muted small mb-4">Burada açık olan modüller ana sayfada buton olarak listelenir. Arka planda MD5 hash'e dönüştürülerek güvenle saklanır.</p>
 
-                <form asp-action="SaveShownModules" method="post">
+                <form asp-controller="SysAdminConnection" asp-action="SaveShownModules" method="post">
                     <div class="d-flex flex-wrap gap-5 align-items-center mb-3">
                         @for (int i = 0; i < Model.ActiveModules.Count; i++)
                         {
@@ -84,7 +84,7 @@
             <div class="col-md-4">
                 <div class="card shadow-sm border-0 rounded-3 p-4 bg-white">
                     <h5 class="fw-bold text-primary mb-4"><i class="fas fa-network-wired me-2"></i>Bağlantı Detayı</h5>
-                    <form asp-action="SaveConnection" method="post">
+                    <form asp-controller="SysAdminConnection" asp-action="SaveConnection" method="post">
                         <input type="hidden" name="CurrentModel.Id" value="@Model.CurrentModel.Id" />
 
                         <div class="mb-3">
@@ -152,8 +152,8 @@
                                             @(string.IsNullOrEmpty(item.ConnectionString) ? "Default Server (ORPASAN)" : item.ConnectionString)
                                         </td>
                                         <td class="text-end">
-                                            <a asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary me-1"><i class="fas fa-edit"></i></a>
-                                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silmek istediğinize emin misiniz?')"><i class="fas fa-trash"></i></a>
+                                            <a asp-controller="SysAdminConnection" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary me-1"><i class="fas fa-edit"></i></a>
+                                            <a asp-controller="SysAdminConnection" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silmek istediğinize emin misiniz?')"><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
                                 }
