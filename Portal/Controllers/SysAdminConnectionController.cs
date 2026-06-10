@@ -10,38 +10,29 @@ using System.Linq;
 namespace Portal.Controllers
 {
     [Authorize(Roles = "SysAdmin")]
-    public class SysAdminConnectionController : Controller
+    public class SysAdminConnectionController(SqlEngine sqlEngine, IAppSettingsService appSettingsService) : Controller
     {
-        private readonly SqlEngine _sqlEngine;
-        private readonly IAppSettingsService _appSettingsService;
-
-        public SysAdminConnectionController(SqlEngine sqlEngine, IAppSettingsService appSettingsService)
-        {
-            _sqlEngine = sqlEngine;
-            _appSettingsService = appSettingsService;
-        }
-
         private string GetMasterDb()
         {
-            var settings = _appSettingsService.GetGlobalSettings();
+            var settings = appSettingsService.GetGlobalSettings();
             return settings != null ? settings.GlobalConnectionString : string.Empty;
         }
 
         public IActionResult Index(int? id)
         {
-            var globalSettings = _appSettingsService.GetGlobalSettings();
+            var globalSettings = appSettingsService.GetGlobalSettings();
 
             var viewModel = new SysAdminViewModel
             {
                 GlobalSirketKodu = globalSettings.SirketKodu,
                 GlobalDonemKodu = globalSettings.DonemKodu,
                 GlobalConnectionString = globalSettings.GlobalConnectionString,
-                ActiveModules = _appSettingsService.GetActiveModules(),
-                ShownModules = _appSettingsService.GetShownModules()
+                ActiveModules = appSettingsService.GetActiveModules(),
+                ShownModules = appSettingsService.GetShownModules()
             };
 
             string execCommand = "EXEC ALP_SYS_CONNECTIONS 1";
-            viewModel.SavedConnections = _sqlEngine.ExecuteRawQuery(GetMasterDb(), execCommand, row => new SysConnectionModel
+            viewModel.SavedConnections = sqlEngine.ExecuteRawQuery(GetMasterDb(), execCommand, row => new SysConnectionModel
             {
                 Id = Convert.ToInt32(row["Id"]),
                 ModuleName = row["ModuleName"].ToString()!,
@@ -53,7 +44,7 @@ namespace Portal.Controllers
             if (id.HasValue)
             {
                 string editCommand = $"EXEC ALP_SYS_CONNECTIONS 2, @Id = {id.Value}";
-                viewModel.CurrentModel = _sqlEngine.ExecuteRawQuery(GetMasterDb(), editCommand, row => new SysConnectionModel
+                viewModel.CurrentModel = sqlEngine.ExecuteRawQuery(GetMasterDb(), editCommand, row => new SysConnectionModel
                 {
                     Id = Convert.ToInt32(row["Id"]),
                     ModuleName = row["ModuleName"].ToString()!,
@@ -69,16 +60,15 @@ namespace Portal.Controllers
         [HttpPost]
         public IActionResult SaveGlobalSettings(string globalSirketKodu, string globalDonemKodu, string globalConnectionString)
         {
-            _appSettingsService.UpdateGlobalSettings(globalSirketKodu, globalDonemKodu, globalConnectionString);
+            appSettingsService.UpdateGlobalSettings(globalSirketKodu, globalDonemKodu, globalConnectionString);
             return RedirectToAction("Index", "SysAdminConnection");
         }
 
         [HttpPost]
         public IActionResult SaveShownModules(SysAdminViewModel postModel)
         {
-            var selectedList = postModel.SelectedShownModules ?? new List<string>();
-
-            _appSettingsService.UpdateShownModules(selectedList);
+            var selectedList = postModel.SelectedShownModules ?? [];
+            appSettingsService.UpdateShownModules(selectedList);
 
             return RedirectToAction("Index", "SysAdminConnection");
         }
@@ -95,7 +85,7 @@ namespace Portal.Controllers
 
             string execCommand = $"EXEC ALP_SYS_CONNECTIONS 3, @Id = {idParam}, @ModuleName='{mod}', @FirmaNo={firParam}, @DonemNo={donParam}, @ConnectionString='{conn}'";
 
-            _sqlEngine.ExecuteRawQuery<int>(GetMasterDb(), execCommand, row => 0);
+            sqlEngine.ExecuteRawQuery<int>(GetMasterDb(), execCommand, row => 0);
 
             return RedirectToAction("Index", "SysAdminConnection");
         }
@@ -103,7 +93,7 @@ namespace Portal.Controllers
         public IActionResult Delete(int id)
         {
             string execCommand = $"EXEC ALP_SYS_CONNECTIONS 4, @Id = {id}";
-            _sqlEngine.ExecuteRawQuery<int>(GetMasterDb(), execCommand, row => 0);
+            sqlEngine.ExecuteRawQuery<int>(GetMasterDb(), execCommand, row => 0);
             return RedirectToAction("Index", "SysAdminConnection");
         }
     }

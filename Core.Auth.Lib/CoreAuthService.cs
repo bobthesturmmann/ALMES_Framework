@@ -24,7 +24,7 @@ namespace Core.Auth.Lib
             List<CoreUserWithPassword> users = _sqlEngine.ExecuteRawQuery(
                 connectionString,
                 execCommand,
-                (IDataRecord row) => new CoreUserWithPassword
+                row => new CoreUserWithPassword
                 {
                     User = new CoreAuthUser
                     {
@@ -50,7 +50,7 @@ namespace Core.Auth.Lib
             return null;
         }
 
-        public string HashPassword(string password)
+        public static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
         }

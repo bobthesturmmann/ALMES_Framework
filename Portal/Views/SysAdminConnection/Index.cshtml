@@ -149,7 +149,7 @@
                                         <td>@(string.IsNullOrEmpty(item.FirmaNo) ? "Global" : item.FirmaNo)</td>
                                         <td>@(string.IsNullOrEmpty(item.DonemNo) ? "Global" : item.DonemNo)</td>
                                         <td class="text-truncate small text-muted" style="max-width: 200px;">
-                                            @(string.IsNullOrEmpty(item.ConnectionString) ? "Default Server (ORPASAN)" : item.ConnectionString)
+                                            @(string.IsNullOrEmpty(item.ConnectionString) ? "Default Server" : item.ConnectionString)
                                         </td>
                                         <td class="text-end">
                                             <a asp-controller="SysAdminConnection" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary me-1"><i class="fas fa-edit"></i></a>
