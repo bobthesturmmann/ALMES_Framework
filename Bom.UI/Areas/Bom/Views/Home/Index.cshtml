@@ -1,0 +1,83 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Bom/Views/Shared/_BomLayout.cshtml";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+        <div class="bg-dark text-white rounded-2 p-3 me-3 shadow-sm">
+            <i class="bi bi-diagram-3-fill fs-3"></i>
+        </div>
+        <div>
+            <h4 class="fw-bold m-0 text-dark">BOM — Ürün Reçeteleri Yönetim Sistemi</h4>
+            <span class="text-muted small font-monospace">ALMES Çatısı Çekirdek Modülü</span>
+        </div>
+    </div>
+    <div>
+        <span class="badge bg-success px-3 py-2 rounded-1 fw-semibold shadow-sm">Modül Aktif</span>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="card border-0 shadow-sm rounded-1 p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small d-block fw-semibold">Toplam Tanımlı Reçete</span>
+                    <h3 class="fw-bold m-0 mt-1 text-dark font-monospace">--</h3>
+                </div>
+                <div class="text-primary fs-3"><i class="bi bi-box-seam-fill"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="card border-0 shadow-sm rounded-1 p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small d-block fw-semibold">Aktif Yarı Mamul Kartları</span>
+                    <h3 class="fw-bold m-0 mt-1 text-dark font-monospace">--</h3>
+                </div>
+                <div class="text-warning fs-3"><i class="bi bi-gears"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-10 col-md-4">
+        <div class="card border-0 shadow-sm rounded-1 p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-muted small d-block fw-semibold">Logo ERP Senkronizasyonu</span>
+                    <h3 class="fw-bold m-0 mt-1 text-success small fs-6 pt-2"><i class="bi bi-check-circle-fill me-1"></i> Bağlantı Başarılı</h3>
+                </div>
+                <div class="text-success fs-3"><i class="bi bi-database-fill-check"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-md-6">
+        <div class="card h-100 border-0 shadow-sm rounded-1 p-4 bg-white hover-card">
+            <div class="mb-3 text-success"><i class="bi bi-calculator fs-2"></i></div>
+            <h5 class="fw-bold text-dark">Reçete Listesi & Maliyet Simülasyonu</h5>
+            <p class="text-muted small mb-4">Logo ERP'den gelen aktif Mamul/Yarı Mamul kartlarını inceleyin, çift tıklayarak üretim ağaçlarına girin ve bu ağaçlar üzerinden dinamik maliyet simülasyonlarını çalıştırın.</p>
+            <div class="mt-auto">
+                <a href="/Bom/RecipeList" class="btn btn-success btn-sm fw-semibold px-4 rounded-1 w-100 py-2 shadow-sm">
+                    <i class="bi bi-arrow-right-circle me-1"></i> Listeyi Aç
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card h-100 border-0 shadow-sm rounded-1 p-4 bg-white hover-card">
+            <div class="mb-3 text-primary"><i class="bi bi-pencil-square fs-2"></i></div>
+            <h5 class="fw-bold text-dark">Yeni Reçete Ekleme / Düzenleme / Silme</h5>
+            <p class="text-muted small mb-4">Sistem üzerinde sıfırdan yeni ürün ağaçları (BOM) tanımlamak, mevcut reçeteleri revize etmek veya silmek için kullanılacak yönetim katmanı.</p>
+            <div class="mt-auto">
+                <a href="/Bom/RecipeManagement" class="btn btn-dark btn-sm fw-semibold px-4 rounded-1 w-100 py-2 shadow-sm">
+                    <i class="bi bi-plus-circle-fill me-1"></i> Yönetim Panelini Aç
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

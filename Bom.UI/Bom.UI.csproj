@@ -42,9 +42,7 @@
 		<ItemGroup>
 			<WwwRootFiles Include="$(ProjectDir)wwwroot\**\*.*" />
 		</ItemGroup>
-		<Copy SourceFiles="@(WwwRootFiles)"
-			  DestinationFolder="$(ModuleOutputDir)wwwroot\%(RecursiveDir)"
-			  SkipUnchangedFiles="true" />
+		<Copy SourceFiles="@(WwwRootFiles)" DestinationFolder="$(ModuleOutputDir)wwwroot\%(RecursiveDir)" SkipUnchangedFiles="true" />
 	</Target>
 
 </Project>

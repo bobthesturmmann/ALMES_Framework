@@ -17,14 +17,12 @@ builder.Services.AddAuthentication(AuthConstants.CookieScheme)
         options.AccessDeniedPath = "/Auth/Account/Login";
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ModuleControl", policy =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("ModuleControl", policy =>
         policy.Requirements.Add(new _Core.Shared.Lib.ModuleRequirement()));
-});
 
 var mvcBuilder = builder.Services.AddControllersWithViews();
-var embeddedProviders = new List<IFileProvider>();
+List<IFileProvider> embeddedProviders = [];
 
 string currentExecutionPath = AppDomain.CurrentDomain.BaseDirectory;
 string modulesRootPath = Path.Combine(currentExecutionPath, "Modules");
@@ -33,8 +31,6 @@ if (!Directory.Exists(modulesRootPath))
 {
     modulesRootPath = Path.Combine(currentExecutionPath, "..", "..", "..", "..", "Server", "Modules");
 }
-
-string sharedPath = Path.Combine(modulesRootPath, "Shared");
 
 if (!Directory.Exists(modulesRootPath))
 {
@@ -56,10 +52,10 @@ if (Directory.Exists(modulesRootPath))
     {
         if (Path.GetFileName(dir).Equals("Shared", StringComparison.OrdinalIgnoreCase)) continue;
 
-        var allDlls = Directory.GetFiles(dir, "*.dll");
-        foreach (var dllPath in allDlls)
+        var allTargetDlls = Directory.GetFiles(dir, "*.dll");
+        foreach (var dllPath in allTargetDlls)
         {
-            if (!dllPath.EndsWith(".UI.dll"))
+            if (!dllPath.EndsWith(".UI.dll", StringComparison.OrdinalIgnoreCase))
             {
                 try { AssemblyLoadContext.Default.LoadFromAssemblyPath(dllPath); } catch { }
             }
@@ -79,7 +75,7 @@ if (Directory.Exists(modulesRootPath))
     }
 }
 
-if (embeddedProviders.Any())
+if (embeddedProviders.Count > 0)
 {
     builder.Services.Configure<Microsoft.AspNetCore.Mvc.Razor.RazorViewEngineOptions>(options =>
     {
@@ -88,22 +84,18 @@ if (embeddedProviders.Any())
     });
 
     builder.Environment.ContentRootFileProvider = new CompositeFileProvider(
-        new[] { builder.Environment.ContentRootFileProvider }.Concat(embeddedProviders)
+        [builder.Environment.ContentRootFileProvider, .. embeddedProviders]
     );
 }
 
 builder.Services.AddHttpContextAccessor();
-
 builder.Services.AddSingleton<SqlEngine>();
-
 builder.Services.AddScoped<IModuleConnectionProvider, ModuleConnectionProvider>();
 
-var activeModules = builder.Configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
-
-var hiddenModules = builder.Configuration.GetSection("HiddenModules").Get<List<string>>() ?? new List<string>();
+var activeModules = builder.Configuration.GetSection("ActiveModules").Get<List<string>>() ?? [];
+var hiddenModules = builder.Configuration.GetSection("HiddenModules").Get<List<string>>() ?? [];
 
 var allTargetModules = activeModules.Concat(hiddenModules).Distinct().ToList();
-
 var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
 
 if (Directory.Exists(modulesRootPath))
@@ -149,7 +141,7 @@ foreach (var assembly in loadedAssemblies)
             foreach (var @interface in interfaces)
             {
                 if (@interface.Name == "I" + type.Name ||
-                    @interface.Namespace?.Contains("Shared") == true ||
+                    @interface.Namespace?.Contains("Shared", StringComparison.OrdinalIgnoreCase) == true ||
                     @interface.Name == "IAuthorizationHandler")
                 {
                     builder.Services.AddScoped(@interface, type);
@@ -171,11 +163,11 @@ foreach (var assembly in loadedAssemblies)
         {
             var typesToRegister = assembly.GetTypes()
                 .Where(t => t.IsClass && !t.IsAbstract &&
-                    (t.Name.EndsWith("Repository") ||
-                     t.Name.EndsWith("Manager") ||
-                     t.Name.EndsWith("Controller") ||
-                     t.Name.EndsWith("Service") ||
-                     t.Name.EndsWith("Bridge")));
+                    (t.Name.EndsWith("Repository", StringComparison.OrdinalIgnoreCase) ||
+                     t.Name.EndsWith("Manager", StringComparison.OrdinalIgnoreCase) ||
+                     t.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase) ||
+                     t.Name.EndsWith("Service", StringComparison.OrdinalIgnoreCase) ||
+                     t.Name.EndsWith("Bridge", StringComparison.OrdinalIgnoreCase)));
 
             foreach (var type in typesToRegister)
             {
@@ -186,56 +178,6 @@ foreach (var assembly in loadedAssemblies)
     }
 }
 
-//void CopyActiveModulesStaticFiles(IConfiguration configuration)
-//{
-//    string currentPath = AppDomain.CurrentDomain.BaseDirectory;
-
-//    var activeModules = configuration.GetSection("ActiveModules").Get<List<string>>() ?? new List<string>();
-
-//    string portalWwwRoot = Path.Combine(currentPath, "wwwroot");
-//    if (!Directory.Exists(portalWwwRoot)) Directory.CreateDirectory(portalWwwRoot);
-
-//    string solutionPath = Path.GetFullPath(Path.Combine(currentPath, "..", "..", "..", ".."));
-//    string modulesRootPath = Path.Combine(solutionPath, "Modules");
-
-//    if (!Directory.Exists(modulesRootPath))
-//    {
-//        solutionPath = Path.GetFullPath(Path.Combine(currentPath, "..", "..", "..", "..", ".."));
-//        modulesRootPath = Path.Combine(solutionPath, "Modules");
-//    }
-
-//    foreach (var module in activeModules)
-//    {
-//        if (module.Equals("Core", StringComparison.OrdinalIgnoreCase)) continue;
-
-//        string moduleWwwRoot = Path.Combine(modulesRootPath, module, $"{module}.UI", "wwwroot");
-
-//        if (Directory.Exists(moduleWwwRoot))
-//        {
-//            string targetModuleFolder = Path.Combine(portalWwwRoot, module.ToLower());
-//            if (!Directory.Exists(targetModuleFolder)) Directory.CreateDirectory(targetModuleFolder);
-
-//            foreach (string dirPath in Directory.GetDirectories(moduleWwwRoot, "*", SearchOption.AllDirectories))
-//            {
-//                Directory.CreateDirectory(dirPath.Replace(moduleWwwRoot, targetModuleFolder));
-//            }
-
-//            foreach (string newPath in Directory.GetDirectories(moduleWwwRoot, "*", SearchOption.AllDirectories)
-//                                             .SelectMany(d => Directory.GetFiles(d))
-//                                             .Concat(Directory.GetFiles(moduleWwwRoot)))
-//            {
-//                string destFile = newPath.Replace(moduleWwwRoot, targetModuleFolder);
-//                if (!File.Exists(destFile) || File.GetLastWriteTime(newPath) > File.GetLastWriteTime(destFile))
-//                {
-//                    File.Copy(newPath, destFile, true);
-//                }
-//            }
-//        }
-//    }
-//}
-
-//CopyActiveModulesStaticFiles(builder.Configuration);
-
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -244,7 +186,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 
 if (Directory.Exists(modulesRootPath))
@@ -259,7 +200,7 @@ if (Directory.Exists(modulesRootPath))
         if (Directory.Exists(moduleWwwRoot))
         {
             var subDirs = Directory.GetDirectories(moduleWwwRoot);
-            if (subDirs.Any())
+            if (subDirs.Length > 0)
             {
                 string sourceContentFolder = subDirs.First();
                 string actualFolderName = Path.GetFileName(sourceContentFolder).ToLower();
@@ -267,12 +208,10 @@ if (Directory.Exists(modulesRootPath))
                 app.UseStaticFiles(new StaticFileOptions
                 {
                     FileProvider = new PhysicalFileProvider(sourceContentFolder),
-
                     RequestPath = $"/{actualFolderName}",
-
                     OnPrepareResponse = ctx =>
                     {
-                        ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=31536000");
+                        ctx.Context.Response.Headers.CacheControl = "public,max-age=31536000";
                     }
                 });
             }

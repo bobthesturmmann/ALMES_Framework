@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Reçete Yönetimi";
+    Layout = "~/Areas/Bom/Views/Shared/_BomLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="/bom/css/bom-recipe-list.css">
+}
+
+<div class="card shadow-sm border-0 rounded-1">
+    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+        <h5 class="fw-bold text-dark m-0">
+            <i class="bi bi-gear-wide-connected text-primary me-2"></i>Reçete Ekleme & Düzenleme Paneli
+        </h5>
+        <span class="badge bg-warning text-dark font-monospace fw-semibold">SQL Yapısı Bekleniyor</span>
+    </div>
+
+    <div class="card-body p-5 text-center bg-white">
+        <div class="py-4">
+            <i class="bi bi-database-fill-gear text-muted display-1 d-block mb-3 animate-pulse"></i>
+            <h4 class="fw-bold text-secondary">CRUD Form Altyapısı Hazır</h4>
+            <p class="text-muted mx-auto" style="max-width: 500px;">
+                Ekleme, silme ve güncelleme işlemlerinin döneceği ekran mimari olarak ayrıldı. SQL uzmanınızla Logo ERP tarafındaki hangi tabloları (Reçete başlıkları, satırları, operasyonlar vb.) çekeceğinizi netleştirdikten sonra form elementlerini buraya dizeceğiz.
+            </p>
+            <div class="mt-4">
+                <a href="/Bom/Recipe" class="btn btn-sm btn-outline-secondary fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Mevcut Reçete Listesine Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+}

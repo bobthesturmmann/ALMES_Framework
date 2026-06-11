@@ -6,9 +6,9 @@ namespace Bom.UI.Areas.Bom.Controllers
     [Area("Bom")]
     [Authorize]
     [Authorize(Policy = "ModuleControl")]
-    public class HomeController : Controller
+    public class RecipeManagementController : Controller
     {
-        [Route("Bom")]
+        [Route("Bom/RecipeManagement")]
         public IActionResult Index()
         {
             return View();
