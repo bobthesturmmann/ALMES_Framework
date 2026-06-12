@@ -1,0 +1,44 @@
+﻿<div class="modal fade" id="productSelectModal" tabindex="-1" aria-labelledby="productSelectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-1 border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold text-dark" id="productSelectModalLabel">
+                    <i class="bi bi-search text-primary me-2"></i>Logo ERP Malzeme Kartı Seçimi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="input-group mb-3 shadow-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-filter text-muted"></i></span>
+                    <input type="text" id="modalSearchInput" class="form-control border-start-0" placeholder="Ürün kodu veya adı ile ara (Örn: CH-001)...">
+                    <button class="btn btn-primary fw-semibold" type="button" id="btnModalSearch">
+                        <i class="bi bi-search me-1"></i> Ara
+                    </button>
+                </div>
+
+                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-hover table-striped align-middle border" id="modalProductTable">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th style="width: 30%">Ürün Kodu</th>
+                                <th style="width: 50%">Ürün Adı</th>
+                                <th style="width: 10%">Birim</th>
+                                <th style="width: 10%" class="text-center">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="bi bi-info-circle me-1"></i> Arama yapmak için yukarıdaki kutuyu kullanın.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-sm btn-secondary fw-semibold" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>

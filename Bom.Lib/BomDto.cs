@@ -23,4 +23,28 @@
         public int PageSize { get; set; }
         public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
     }
+
+    public class BomRecipeSaveDto
+    {
+        public string FirmaNo { get; set; } = string.Empty;
+        public string DonemNo { get; set; } = string.Empty;
+        public int IslemTipi { get; set; } = 1;
+        public int SatirNo { get; set; }
+        public int AnaUrunRef { get; set; }
+        public decimal AnaMiktar { get; set; }
+        public int AnaBirimRef { get; set; }
+        public int AltUrunRef { get; set; }
+        public decimal AltMiktar { get; set; }
+        public int AltBirimRef { get; set; }
+        public decimal LostFactor { get; set; }
+    }
+
+    public class BomManageResponseDto
+    {
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public int AddedLineNo { get; set; }
+        public int MainProductRef { get; set; }
+        public int SubProductRef { get; set; }
+    }
 }

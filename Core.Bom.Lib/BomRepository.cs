@@ -35,12 +35,11 @@ namespace Core.Bom.Lib
             }
 
             string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
-            int fNo = int.TryParse(firmaNo, out var f) ? f : 0;
 
             var cleanSearch = (searchCode ?? "").Trim().Replace("'", "''");
 
-            //string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = {fNo}, @IslemTipi = {mode}, @AnaUrunKodu = '{cleanSearch}'";
-            string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = {fNo}, @AnaUrunKodu = '{cleanSearch}'";
+            int fNo = int.TryParse(firmaNo, out var f) ? f : 0;
+            string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = {fNo}, @IslemTipi = {mode}, @AnaUrunKodu = '{cleanSearch}'";
 
             return _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => MapRowToEntity(row));
         }
@@ -57,8 +56,8 @@ namespace Core.Bom.Lib
 
             string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
             var cleanProductCode = productCode.Trim().Replace("'", "''");
-            int fNo = int.TryParse(firmaNo, out var f) ? f : 0;
 
+            int fNo = int.TryParse(firmaNo, out var f) ? f : 0;
             string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = {fNo}, @IslemTipi = 3, @AnaUrunKodu = '{cleanProductCode}'";
 
             return _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => MapRowToEntity(row));
@@ -111,6 +110,58 @@ namespace Core.Bom.Lib
             };
 
             return entity;
+        }
+
+        public BomManageResultEntity ManageRecipeLine(
+                string firmaNo,
+                string donemNo,
+                int islemTipi,
+                int satirNo,
+                int anaUrunRef,
+                decimal anaMiktar,
+                int anaBirimRef,
+                int altUrunRef,
+                decimal altMiktar,
+                int altBirimRef,
+                decimal lostFactor)
+        {
+            if (!_authBridge.IsUserLoggedIn())
+            {
+                throw new UnauthorizedAccessException("Bu işlem için oturum açılması gereklidir.");
+            }
+
+            if (string.IsNullOrEmpty(firmaNo))
+            {
+                var globalSettings = _appSettingsService.GetGlobalSettings();
+                firmaNo = globalSettings.SirketKodu;
+            }
+
+            string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
+
+            string execCommand = $@"
+        EXEC [dbo].[ALP_BOM_MANAGE_RECETE] 
+            @FirmaNo = '{firmaNo.Trim()}', 
+            @IslemTipi = {islemTipi}, 
+            @SatirNo = {satirNo}, 
+            @AnaUrunRef = {anaUrunRef}, 
+            @AnaMiktar = {anaMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
+            @AnaBirimRef = {anaBirimRef}, 
+            @AltUrunRef = {altUrunRef}, 
+            @AltMiktar = {altMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
+            @AltBirimRef = {altBirimRef}, 
+            @LostFactor = {lostFactor.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
+            var resultList = _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => new BomManageResultEntity
+            {
+                IslemBasarili = row["IslemBasarili"] != DBNull.Value ? Convert.ToInt32(row["IslemBasarili"]) : 0,
+                AnaUrunRef = row["AnaUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AnaUrunRef"]) : 0,
+                AltUrunRef = row["AltUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AltUrunRef"]) : 0,
+                EklenenSatirNo = row["EklenenSatirNo"] != DBNull.Value ? Convert.ToInt32(row["EklenenSatirNo"]) : 0
+            });
+
+            return resultList != null && resultList.Count > 0
+                ? resultList[0]
+                : new BomManageResultEntity { IslemBasarili = 0 };
         }
     }
 }

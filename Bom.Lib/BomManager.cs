@@ -61,5 +61,58 @@ namespace Bom.Lib
                 SubUnitSet = x.AltBirimSeti
             }).ToList();
         }
+
+        public BomManageResponseDto SaveRecipeLine(BomRecipeSaveDto dto)
+        {
+            var repoResult = _bomRepository.ManageRecipeLine(
+                dto.FirmaNo,
+                dto.DonemNo,
+                dto.IslemTipi,
+                dto.SatirNo,
+                dto.AnaUrunRef,
+                dto.AnaMiktar,
+                dto.AnaBirimRef,
+                dto.AltUrunRef,
+                dto.AltMiktar,
+                dto.AltBirimRef,
+                dto.LostFactor
+            );
+
+            if (repoResult != null && repoResult.IslemBasarili == 1)
+            {
+                return new BomManageResponseDto
+                {
+                    IsSuccess = true,
+                    Message = "Reçete satırı başarıyla kaydedildi.",
+                    AddedLineNo = repoResult.EklenenSatirNo,
+                    MainProductRef = repoResult.AnaUrunRef,
+                    SubProductRef = repoResult.AltUrunRef
+                };
+            }
+
+            return new BomManageResponseDto
+            {
+                IsSuccess = false,
+                Message = "Reçete satırı kaydedilirken SQL katmanında bir hata oluştu veya işlem başarısız."
+            };
+        }
+
+        public List<BomDto> SearchLogoItems(string searchCode, string selectionType)
+        {
+            bool isCodeEmpty = string.IsNullOrWhiteSpace(searchCode);
+            int targetMode = 4;
+
+            if (string.Equals(selectionType, "main", StringComparison.OrdinalIgnoreCase))
+            {
+                targetMode = isCodeEmpty ? 6 : 7;
+            }
+            else
+            {
+                targetMode = isCodeEmpty ? 4 : 5;
+            }
+
+            var rawData = _bomRepository.GetAllRecipes(string.Empty, string.Empty, targetMode, searchCode);
+            return MapToDto(rawData);
+        }
     }
 }

@@ -14,4 +14,12 @@
         public string AltBirimi { get; set; } = string.Empty;
         public string AltBirimSeti { get; set; } = string.Empty;
     }
+
+    public class BomManageResultEntity
+    {
+        public int IslemBasarili { get; set; }
+        public int AnaUrunRef { get; set; }
+        public int AltUrunRef { get; set; }
+        public int EklenenSatirNo { get; set; }
+    }
 }

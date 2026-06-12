@@ -24,7 +24,7 @@ namespace Bom.UI.Areas.Bom.Controllers
                 string refererUrl = Request.Headers.Referer.ToString() ?? string.Empty;
                 ViewBag.ReturnUrl = (!string.IsNullOrEmpty(refererUrl) && refererUrl.Contains("/Bom", StringComparison.OrdinalIgnoreCase))
                                     ? refererUrl
-                                    : "/Bom/Recipe";
+                                    : "/Bom/RecipeList";
 
                 var rawDetails = bomManager.PrepareBomListByProduct(productCode);
 
