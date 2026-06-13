@@ -74,6 +74,7 @@ namespace _Core.Shared.Lib
         public ResolvedModuleSettings ResolveModuleSettings(string moduleName)
         {
             string masterConnectionString = _configuration.GetConnectionString("DefaultConnection")!;
+
             string finalFirma = _configuration["AlmesSettings:SirketKodu"] ?? "000";
             string finalDonem = _configuration["AlmesSettings:DonemKodu"] ?? "00";
 
@@ -92,8 +93,8 @@ namespace _Core.Shared.Lib
 
                 if (specRecord != null)
                 {
-                    if (!string.IsNullOrEmpty(specRecord.FirmaNo)) finalFirma = specRecord.FirmaNo;
-                    if (!string.IsNullOrEmpty(specRecord.DonemNo)) finalDonem = specRecord.DonemNo;
+                    if (!string.IsNullOrEmpty(specRecord.FirmaNo)) finalFirma = specRecord.FirmaNo.Trim();
+                    if (!string.IsNullOrEmpty(specRecord.DonemNo)) finalDonem = specRecord.DonemNo.Trim();
                 }
             }
             catch { }

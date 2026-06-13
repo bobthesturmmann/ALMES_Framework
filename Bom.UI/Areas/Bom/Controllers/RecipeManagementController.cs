@@ -66,8 +66,8 @@ namespace Bom.UI.Areas.Bom.Controllers
                     return Json(new { isSuccess = false, message = "Geçersiz istek verisi veya Ana Ürün referansı eksik!" });
                 }
 
-                string firmaNo = "";
-                string donemNo = "";
+                string? firmaNo = null;
+                string? donemNo = null;
 
                 if (payload.IsDeleteAll)
                 {

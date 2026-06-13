@@ -25,21 +25,31 @@ namespace Core.Bom.Lib
             _appSettingsService = appSettingsService;
         }
 
+        private (string Firma, string Donem) ResolveCompanyAndPeriod(string firmaNo, string donemNo)
+        {
+            if (!string.IsNullOrEmpty(firmaNo) && !string.IsNullOrEmpty(donemNo))
+            {
+                return (firmaNo, donemNo);
+            }
+
+            var resolved = _connectionProvider.ResolveModuleSettings("BOM");
+
+            return (
+                string.IsNullOrEmpty(firmaNo) ? resolved.FirmaNo : firmaNo.Trim(),
+                string.IsNullOrEmpty(donemNo) ? resolved.DonemNo : donemNo.Trim()
+            );
+        }
+
         public List<BomViewEntity> GetAllRecipes(string firmaNo, string donemNo, int mode = 1, string searchCode = "")
         {
             if (!_authBridge.IsUserLoggedIn()) { throw new UnauthorizedAccessException("..."); }
 
-            if (string.IsNullOrEmpty(firmaNo))
-            {
-                var globalSettings = _appSettingsService.GetGlobalSettings();
-                firmaNo = globalSettings.SirketKodu;
-            }
+            var (finalFirma, finalDonem) = ResolveCompanyAndPeriod(firmaNo, donemNo);
 
-            string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
+            string connectionString = _connectionProvider.GetConnectionString("BOM", finalFirma, finalDonem);
             var cleanSearch = (searchCode ?? "").Trim().Replace("'", "''");
 
-            int fNo = int.TryParse(firmaNo, out var f) ? f : 0;
-            string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = {fNo}, @IslemTipi = {mode}, @AnaUrunKodu = '{cleanSearch}'";
+            string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = '{finalFirma.Trim()}', @IslemTipi = {mode}, @AnaUrunKodu = '{cleanSearch}'";
 
             return _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => MapRowToEntity(row));
         }
@@ -48,24 +58,68 @@ namespace Core.Bom.Lib
         {
             if (!_authBridge.IsUserLoggedIn()) { throw new UnauthorizedAccessException("..."); }
 
-            if (string.IsNullOrEmpty(firmaNo))
-            {
-                var globalSettings = _appSettingsService.GetGlobalSettings();
-                firmaNo = globalSettings.SirketKodu;
-            }
+            var (finalFirma, finalDonem) = ResolveCompanyAndPeriod(firmaNo, donemNo);
 
-            string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
+            string connectionString = _connectionProvider.GetConnectionString("BOM", finalFirma, finalDonem);
             var cleanProductCode = productCode.Trim().Replace("'", "''");
 
-            int fNo = int.TryParse(firmaNo, out var f) ? f : 0;
-            string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = {fNo}, @IslemTipi = 3, @AnaUrunKodu = '{cleanProductCode}'";
+            string execCommand = $"EXEC ALP_BOM_GET_RECETE @FirmaNo = '{finalFirma.Trim()}', @IslemTipi = 3, @AnaUrunKodu = '{cleanProductCode}'";
 
             return _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => MapRowToEntity(row));
         }
 
+        public BomManageResultEntity ManageRecipeLine(
+            string firmaNo, string donemNo, int islemTipi, int satirNo,
+            int anaUrunRef, decimal anaMiktar, int anaBirimRef,
+            int altUrunRef, decimal altMiktar, int altBirimRef, decimal lostFactor)
+        {
+            if (!_authBridge.IsUserLoggedIn()) { throw new UnauthorizedAccessException("..."); }
+
+            var (finalFirma, finalDonem) = ResolveCompanyAndPeriod(firmaNo, donemNo);
+
+            string connectionString = _connectionProvider.GetConnectionString("BOM", finalFirma, finalDonem);
+
+            string execCommand = $@"
+                EXEC [dbo].[ALP_BOM_MANAGE_RECETE] 
+                    @FirmaNo = '{finalFirma.Trim()}', 
+                    @IslemTipi = {islemTipi}, 
+                    @SatirNo = {satirNo}, 
+                    @AnaUrunRef = {anaUrunRef}, 
+                    @AnaMiktar = {anaMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
+                    @AnaBirimRef = {anaBirimRef}, 
+                    @AltUrunRef = {altUrunRef}, 
+                    @AltMiktar = {altMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
+                    @AltBirimRef = {altBirimRef}, 
+                    @LostFactor = {lostFactor.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+
+            var rawResult = _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => row);
+
+            return new BomManageResultEntity
+            {
+                IslemBasarili = 1,
+                AnaUrunRef = anaUrunRef,
+                AltUrunRef = altUrunRef,
+                EklenenSatirNo = satirNo
+            };
+        }
+
+        public void UpdateMainProductProductionInfo(string firmaNo, string donemNo, int anaUrunRef, decimal anaMiktar, int anaBirimRef)
+        {
+            var (finalFirma, finalDonem) = ResolveCompanyAndPeriod(firmaNo, donemNo);
+
+            string connectionString = _connectionProvider.GetConnectionString("BOM", finalFirma, finalDonem);
+
+            string query = $@"
+                UPDATE [LG_{finalFirma.Trim()}_ITEMS] 
+                SET QPRODAMNT = {anaMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
+                    QPRODUOM = {anaBirimRef} 
+                WHERE LOGICALREF = {anaUrunRef}";
+
+            _sqlEngine.ExecuteRawQuery(connectionString, query, row => row);
+        }
+
         private BomViewEntity MapRowToEntity(System.Data.IDataRecord row)
         {
-
             bool HasColumn(System.Data.IDataRecord dr, string columnName)
             {
                 for (int i = 0; i < dr.FieldCount; i++)
@@ -95,75 +149,6 @@ namespace Core.Bom.Lib
             };
 
             return entity;
-        }
-
-        public BomManageResultEntity ManageRecipeLine(
-        string firmaNo,
-        string donemNo,
-        int islemTipi,
-        int satirNo,
-        int anaUrunRef,
-        decimal anaMiktar,
-        int anaBirimRef,
-        int altUrunRef,
-        decimal altMiktar,
-        int altBirimRef,
-        decimal lostFactor)
-        {
-            if (!_authBridge.IsUserLoggedIn())
-            {
-                throw new UnauthorizedAccessException("Bu işlem için oturum açılması gereklidir.");
-            }
-
-            if (string.IsNullOrEmpty(firmaNo))
-            {
-                var globalSettings = _appSettingsService.GetGlobalSettings();
-                firmaNo = globalSettings.SirketKodu;
-            }
-
-            string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
-
-            string execCommand = $@"
-        EXEC [dbo].[ALP_BOM_MANAGE_RECETE] 
-            @FirmaNo = '{firmaNo.Trim()}', 
-            @IslemTipi = {islemTipi}, 
-            @SatirNo = {satirNo}, 
-            @AnaUrunRef = {anaUrunRef}, 
-            @AnaMiktar = {anaMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
-            @AnaBirimRef = {anaBirimRef}, 
-            @AltUrunRef = {altUrunRef}, 
-            @AltMiktar = {altMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
-            @AltBirimRef = {altBirimRef}, 
-            @LostFactor = {lostFactor.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
-
-            var rawResult = _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => row);
-
-            return new BomManageResultEntity
-            { 
-                IslemBasarili = 1,
-                AnaUrunRef = anaUrunRef,
-                AltUrunRef = altUrunRef,
-                EklenenSatirNo = satirNo
-            };
-        }
-
-        public void UpdateMainProductProductionInfo(string firmaNo, string donemNo, int anaUrunRef, decimal anaMiktar, int anaBirimRef)
-        {
-            if (string.IsNullOrEmpty(firmaNo))
-            {
-                var globalSettings = _appSettingsService.GetGlobalSettings();
-                firmaNo = globalSettings.SirketKodu;
-            }
-
-            string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
-
-            string query = $@"
-        UPDATE [LG_{firmaNo.Trim()}_ITEMS] 
-        SET QPRODAMNT = {anaMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
-            QPRODUOM = {anaBirimRef} 
-        WHERE LOGICALREF = {anaUrunRef}";
-
-            _sqlEngine.ExecuteRawQuery(connectionString, query, row => row);
         }
     }
 }

@@ -291,4 +291,126 @@
             }
         });
     });
+
+    // ================================================================================================================
+    //  ÜRÜN SEÇİMİ İÇİN AJAX ARAMA VE SONUÇLARI
+    // ================================================================================================================
+
+    let modalRawData = [];
+    let modalCurrentPage = 1;
+    const modalPageSize = 20;
+
+    $('#productSelectModal').on('shown.bs.modal', function () {
+        $("#modalSearchInput").val("");
+        modalRawData = [];
+        modalCurrentPage = 1;
+
+        $("#modalPaginationWrapper").attr("style", "display: none !important;");
+
+        $("#modalProductTable tbody").html(`
+        <tr>
+            <td colspan="4" class="text-center text-muted py-4">
+                <i class="bi bi-info-circle me-1"></i> Arama yapmak için yukarıdaki kutuyu kullanıp aratın.
+            </td>
+        </tr>
+    `);
+    });
+
+    function fetchModalProducts() {
+        let searchKeyword = $("#modalSearchInput").val().trim();
+
+        if (searchKeyword === "") {
+            alert("Lütfen aramak için bir ürün kodu veya adı giriniz.");
+            return;
+        }
+
+        let $tbody = $("#modalProductTable tbody");
+        $tbody.html('<tr><td colspan="4" class="text-center py-4"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Logo veritabanında aranıyor...</td></tr>');
+
+        $("#modalPaginationWrapper").attr("style", "display: none !important;");
+
+        $.ajax({
+            url: "/Bom/RecipeManagement/SearchProducts",
+            type: "GET",
+            data: { searchCode: searchKeyword, selectionType: targetSelection },
+            success: function (res) {
+                if (res.isSuccess && res.data) {
+                    modalRawData = res.data;
+                    modalCurrentPage = 1;
+                    renderModalPagedTable();
+                } else {
+                    $tbody.html('<tr><td colspan="4" class="text-center text-danger py-4">Uygun malzeme kartı bulunamadı!</td></tr>');
+                }
+            }
+        });
+    }
+
+    function renderModalPagedTable() {
+        let $tbody = $("#modalProductTable tbody");
+        $tbody.empty();
+
+        if (modalRawData.length === 0) {
+            $tbody.html('<tr><td colspan="4" class="text-center text-muted py-4">Gösterilecek ürün yok.</td></tr>');
+            $("#modalPaginationWrapper").attr("style", "display: none !important;");
+            return;
+        }
+
+        if (modalRawData.length <= modalPageSize) {
+            $("#modalPaginationWrapper").attr("style", "display: none !important;");
+        } else {
+            $("#modalPaginationWrapper").attr("style", "display: flex !important;");
+        }
+
+        let maxPage = Math.ceil(modalRawData.length / modalPageSize);
+        updatePaginationUI(maxPage);
+
+        let startIndex = (modalCurrentPage - 1) * modalPageSize;
+        let endIndex = startIndex + modalPageSize;
+        let pagedItems = modalRawData.slice(startIndex, endIndex);
+
+        pagedItems.forEach(function (item) {
+            let hasRecipe = item.isRecipeExists === true;
+            let rowClass = (targetSelection === "main" && hasRecipe) ? "table-success text-dark" : "";
+            let badgeText = hasRecipe ? "Reçeteli" : "Reçetesiz";
+            let badgeClass = hasRecipe ? "bg-success" : "bg-secondary";
+
+            let row = `<tr class="${rowClass}">
+            <td class="fw-bold">
+                ${item.productCode || ''} 
+                ${targetSelection === 'main' ? `<span class="badge ${badgeClass} ms-1 small" style="font-size:0.7rem;">${badgeText}</span>` : ''}
+            </td>
+            <td>${item.productName || ''}</td>
+            <td><span class="badge bg-light text-dark border">${item.unit || ''}</span></td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-success btn-pick" 
+                        data-code="${item.productCode || ''}" data-name="${item.productName || ''}" 
+                        data-unit="${item.unit || ''}" data-idref="${item.productRef || 0}" 
+                        data-uref="${item.unitRef || 1}" data-hasrecipe="${hasRecipe}">
+                    <i class="bi bi-check2"></i> Seç
+                </button>
+            </td>
+        </tr>`;
+            $tbody.append(row);
+        });
+    }
+
+    function updatePaginationUI(maxPage) {
+        $("#manualModalPageInput").val(modalCurrentPage).attr("max", maxPage);
+        $("#lblModalMaxPage").text("/ " + maxPage);
+
+        $("#btnModalPrevPage").prop("disabled", modalCurrentPage <= 1);
+        $("#btnModalNextPage").prop("disabled", modalCurrentPage >= maxPage);
+    }
+
+    $(document).on("click", "#btnModalSearch", function () { fetchModalProducts(); });
+    $(document).on("keypress", "#modalSearchInput", function (e) { if (e.which == 13) { fetchModalProducts(); } });
+
+    $(document).on("click", "#btnModalJump", function () {
+        let input = document.getElementById('manualModalPageInput');
+        let pageNo = parseInt(input.value);
+        let maxPage = parseInt(input.getAttribute('max')) || 1;
+        if (!isNaN(pageNo) && pageNo >= 1 && pageNo <= maxPage) { modalCurrentPage = pageNo; renderModalPagedTable(); } else { alert('Geçersiz sayfa!'); input.value = modalCurrentPage; }
+    });
+    $(document).on("click", "#btnModalPrevPage", function () { if (modalCurrentPage > 1) { modalCurrentPage--; renderModalPagedTable(); } });
+    $(document).on("click", "#btnModalNextPage", function () { let maxPage = Math.ceil(modalRawData.length / modalPageSize); if (modalCurrentPage < maxPage) { modalCurrentPage++; renderModalPagedTable(); } });
 });

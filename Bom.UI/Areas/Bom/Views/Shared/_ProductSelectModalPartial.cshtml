@@ -26,18 +26,28 @@
                                 <th style="width: 10%" class="text-center">İşlem</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-4">
-                                    <i class="bi bi-info-circle me-1"></i> Arama yapmak için yukarıdaki kutuyu kullanın.
-                                </td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
-            <div class="modal-footer bg-light py-2">
-                <button type="button" class="btn btn-sm btn-secondary fw-semibold" data-bs-dismiss="modal">Kapat</button>
+
+            <div class="modal-footer bg-light d-flex align-items-center justify-content-between py-2">
+
+                <div id="modalPaginationWrapper" class="align-items-center gap-2" style="display: none !important;">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnModalPrevPage"><i class="bi bi-chevron-left"></i></button>
+
+                    <div class="input-group input-group-sm" style="max-width: 130px;">
+                        <input type="number" id="manualModalPageInput" class="form-control text-center fw-bold" value="1" min="1">
+                        <span class="input-group-text bg-white border-start-0 text-muted" id="lblModalMaxPage">/ 1</span>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnModalNextPage"><i class="bi bi-chevron-right"></i></button>
+                    <button type="button" class="btn btn-sm btn-dark fw-semibold px-3" id="btnModalJump">Git</button>
+                </div>
+
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-sm btn-secondary fw-semibold" data-bs-dismiss="modal">Kapat</button>
+                </div>
             </div>
         </div>
     </div>
