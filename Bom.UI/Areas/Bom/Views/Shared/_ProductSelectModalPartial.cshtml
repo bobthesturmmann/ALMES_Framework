@@ -1,5 +1,5 @@
 ﻿<div class="modal fade" id="productSelectModal" tabindex="-1" aria-labelledby="productSelectModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content rounded-1 border-0 shadow">
             <div class="modal-header bg-light">
                 <h5 class="modal-title fw-bold text-dark" id="productSelectModalLabel">
@@ -16,14 +16,15 @@
                     </button>
                 </div>
 
-                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                     <table class="table table-hover table-striped align-middle border" id="modalProductTable">
-                        <thead class="table-light sticky-top">
+                        <thead class="table-dark sticky-top">
                             <tr>
-                                <th style="width: 30%">Ürün Kodu</th>
-                                <th style="width: 50%">Ürün Adı</th>
-                                <th style="width: 10%">Birim</th>
-                                <th style="width: 10%" class="text-center">İşlem</th>
+                                <th style="width: 25%">Ürün Kodu</th>
+                                <th style="width: 10%" class="text-center">Türü</th>
+                                <th style="width: 40%">Ürün Adı</th>
+                                <th style="width: 10%" class="text-center">Birim</th>
+                                <th style="width: 15%" class="text-center">İşlem</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -32,15 +33,12 @@
             </div>
 
             <div class="modal-footer bg-light d-flex align-items-center justify-content-between py-2">
-
                 <div id="modalPaginationWrapper" class="align-items-center gap-2" style="display: none !important;">
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="btnModalPrevPage"><i class="bi bi-chevron-left"></i></button>
-
                     <div class="input-group input-group-sm" style="max-width: 130px;">
                         <input type="number" id="manualModalPageInput" class="form-control text-center fw-bold" value="1" min="1">
                         <span class="input-group-text bg-white border-start-0 text-muted" id="lblModalMaxPage">/ 1</span>
                     </div>
-
                     <button type="button" class="btn btn-sm btn-outline-secondary" id="btnModalNextPage"><i class="bi bi-chevron-right"></i></button>
                     <button type="button" class="btn btn-sm btn-dark fw-semibold px-3" id="btnModalJump">Git</button>
                 </div>

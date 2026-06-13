@@ -17,6 +17,7 @@
         public bool IsRecipeExists { get; set; }
         public int SubProductRef { get; set; }
         public int AltBirimRef { get; set; }
+        public string ProductType { get; set; } = string.Empty;
     }
 
     public class PagedBomResult

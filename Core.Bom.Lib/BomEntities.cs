@@ -2,20 +2,23 @@
 {
     public class BomViewEntity
     {
-        public int SatirNo { get; set; }
-        public int AnaUrunRef { get; set; }
-        public string AnaUrunKodu { get; set; } = string.Empty;
-        public string AnaUrunAdi { get; set; } = string.Empty;
-        public decimal AnaMiktar { get; set; }
-        public string AnaBirimi { get; set; } = string.Empty;
-        public string AnaBirimSeti { get; set; } = string.Empty;
-        public int AltUrunRef { get; set; }
-        public int AltBirimRef { get; set; }
-        public string AltUrunKodu { get; set; } = string.Empty;
-        public string AltUrunAdi { get; set; } = string.Empty;
-        public decimal AltMiktar { get; set; }
-        public string AltBirimi { get; set; } = string.Empty;
-        public string AltBirimSeti { get; set; } = string.Empty;
+        // MOD 1 & 2 ÇIKTILARI (Ana Ürün Listesi ve Seçim Modalı)
+        public int UrunRef { get; set; }
+        public string UrunKodu { get; set; } = string.Empty;
+        public string UrunAdi { get; set; } = string.Empty;
+        public string UrunTuru { get; set; } = string.Empty;
+        public string ReceteDurumu { get; set; } = string.Empty;
+
+        // MOD 3 & 4 ÇIKTILARI (Reçete Satırları ve Bileşen Seçim Modalı)
+        public int BilesenRef { get; set; }
+        public string BilesenKodu { get; set; } = string.Empty;
+        public string BilesenAdi { get; set; } = string.Empty;
+        public string BilesenTuru { get; set; } = string.Empty;
+        public int BirimRef { get; set; }
+
+        // ORTAK ALANLAR (Miktar ve Birim her modda bu isimle döner)
+        public decimal Miktar { get; set; }
+        public string Birim { get; set; } = string.Empty;
     }
 
     public class BomManageResultEntity

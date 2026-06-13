@@ -120,33 +120,53 @@ namespace Core.Bom.Lib
 
         private BomViewEntity MapRowToEntity(System.Data.IDataRecord row)
         {
-            bool HasColumn(System.Data.IDataRecord dr, string columnName)
+            bool HasColumn(System.Data.IDataRecord dr, string colName)
             {
                 for (int i = 0; i < dr.FieldCount; i++)
-                {
-                    if (dr.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
-                        return true;
-                }
+                    if (dr.GetName(i).Equals(colName, StringComparison.InvariantCultureIgnoreCase)) return true;
                 return false;
             }
 
-            var entity = new BomViewEntity
-            {
-                AnaUrunRef = HasColumn(row, "AnaUrunRef") && row["AnaUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AnaUrunRef"]) : 0,
-                SatirNo = HasColumn(row, "SatirNo") && row["SatirNo"] != DBNull.Value ? Convert.ToInt32(row["SatirNo"]) : 0,
-                AnaUrunKodu = row["AnaUrunKodu"].ToString()!,
-                AnaUrunAdi = row["AnaUrunAdi"].ToString()!,
-                AnaMiktar = row["AnaMiktar"] != DBNull.Value ? Convert.ToDecimal(row["AnaMiktar"]) : 0,
-                AnaBirimi = row["AnaBirimi"].ToString()!,
-                AnaBirimSeti = HasColumn(row, "AnaBirimSeti") && row["AnaBirimSeti"] != DBNull.Value ? row["AnaBirimSeti"].ToString()! : string.Empty,
-                AltUrunRef = HasColumn(row, "AltUrunRef") && row["AltUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AltUrunRef"]) : 0,
-                AltBirimRef = HasColumn(row, "AltBirimRef") && row["AltBirimRef"] != DBNull.Value ? Convert.ToInt32(row["AltBirimRef"]) : 0,
-                AltUrunKodu = HasColumn(row, "AltUrunKodu") && row["AltUrunKodu"] != DBNull.Value ? row["AltUrunKodu"].ToString()! : string.Empty,
-                AltUrunAdi = HasColumn(row, "AltUrunAdi") && row["AltUrunAdi"] != DBNull.Value ? row["AltUrunAdi"].ToString()! : string.Empty,
-                AltMiktar = HasColumn(row, "AltMiktar") && row["AltMiktar"] != DBNull.Value ? Convert.ToDecimal(row["AltMiktar"]) : 0,
-                AltBirimi = HasColumn(row, "AltBirimi") && row["AltBirimi"] != DBNull.Value ? row["AltBirimi"].ToString()! : string.Empty,
-                AltBirimSeti = HasColumn(row, "AltBirimSeti") && row["AltBirimSeti"] != DBNull.Value ? row["AltBirimSeti"].ToString()! : string.Empty
-            };
+            var entity = new BomViewEntity();
+
+            // --- ANA ÜRÜN (MOD 1 & 2) ---
+            if (HasColumn(row, "UrunRef"))
+                entity.UrunRef = row["UrunRef"] != DBNull.Value ? Convert.ToInt32(row["UrunRef"]) : 0;
+
+            if (HasColumn(row, "UrunKodu"))
+                entity.UrunKodu = row["UrunKodu"]?.ToString() ?? string.Empty;
+
+            if (HasColumn(row, "UrunAdi"))
+                entity.UrunAdi = row["UrunAdi"]?.ToString() ?? string.Empty;
+
+            if (HasColumn(row, "UrunTuru"))
+                entity.UrunTuru = row["UrunTuru"]?.ToString() ?? string.Empty;
+
+            if (HasColumn(row, "ReceteDurumu"))
+                entity.ReceteDurumu = row["ReceteDurumu"]?.ToString() ?? string.Empty;
+
+            // --- ALT BİLEŞEN (MOD 3 & 4) ---
+            if (HasColumn(row, "BilesenRef"))
+                entity.BilesenRef = row["BilesenRef"] != DBNull.Value ? Convert.ToInt32(row["BilesenRef"]) : 0;
+
+            if (HasColumn(row, "BilesenKodu"))
+                entity.BilesenKodu = row["BilesenKodu"]?.ToString() ?? string.Empty;
+
+            if (HasColumn(row, "BilesenAdi"))
+                entity.BilesenAdi = row["BilesenAdi"]?.ToString() ?? string.Empty;
+
+            if (HasColumn(row, "BilesenTuru"))
+                entity.BilesenTuru = row["BilesenTuru"]?.ToString() ?? string.Empty;
+
+            if (HasColumn(row, "BirimRef"))
+                entity.BirimRef = row["BirimRef"] != DBNull.Value ? Convert.ToInt32(row["BirimRef"]) : 1;
+
+            // --- ORTAK ALANLAR ---
+            if (HasColumn(row, "Miktar"))
+                entity.Miktar = row["Miktar"] != DBNull.Value ? Convert.ToDecimal(row["Miktar"]) : 0m;
+
+            if (HasColumn(row, "Birim"))
+                entity.Birim = row["Birim"]?.ToString() ?? string.Empty;
 
             return entity;
         }

@@ -21,7 +21,7 @@ namespace Bom.Lib
 
         public List<BomDto> PrepareBomListByProduct(string productCode)
         {
-            var data = _bomRepository.GetRecipesByProduct(productCode, string.Empty, string.Empty);
+            var data = _bomRepository.GetAllRecipes(string.Empty, string.Empty, 3, productCode);
             return MapToDto(data);
         }
 
@@ -48,23 +48,25 @@ namespace Bom.Lib
         {
             return data.Select(x => new BomDto
             {
-                LineNo = x.SatirNo,
-                MainProductRef = x.AnaUrunRef,
-                MainProductCode = x.AnaUrunKodu,
-                MainProductName = x.AnaUrunAdi,
-                MainQuantity = x.AnaMiktar,
-                MainUnit = x.AnaBirimi,
-                MainUnitSet = x.AnaBirimSeti,
+                // Ana Ürün Bilgileri (Eğer UrunRef varsa)
+                MainProductRef = x.UrunRef,
+                MainProductCode = x.UrunKodu,
+                MainProductName = x.UrunAdi,
+                MainQuantity = x.UrunRef > 0 ? x.Miktar : 0m,
+                MainUnit = x.UrunRef > 0 ? x.Birim : string.Empty,
 
-                SubProductRef = x.AltUrunRef,
-                AltBirimRef = x.AltBirimRef,
-                SubUnitSet = x.AltBirimRef.ToString(),
+                // Alt Bileşen Bilgileri (Eğer BilesenRef varsa)
+                SubProductRef = x.BilesenRef,
+                SubProductCode = x.BilesenKodu,
+                SubProductName = x.BilesenAdi,
+                SubQuantity = x.BilesenRef > 0 ? x.Miktar : 0m,
+                SubUnit = x.BilesenRef > 0 ? x.Birim : string.Empty,
 
-                SubProductCode = x.AltUrunKodu,
-                SubProductName = x.AltUrunAdi,
-                SubQuantity = x.AltMiktar,
-                SubUnit = x.AltBirimi,
-                IsRecipeExists = !string.IsNullOrEmpty(x.AltUrunKodu)
+                AltBirimRef = x.BirimRef > 0 ? x.BirimRef : 1,
+
+                IsRecipeExists = x.ReceteDurumu == "VAR",
+
+                ProductType = x.UrunRef > 0 ? x.UrunTuru : x.BilesenTuru
             }).ToList();
         }
 
@@ -105,17 +107,7 @@ namespace Bom.Lib
 
         public List<BomDto> SearchLogoItems(string searchCode, string selectionType)
         {
-            bool isCodeEmpty = string.IsNullOrWhiteSpace(searchCode);
-            int targetMode = 4;
-
-            if (string.Equals(selectionType, "main", StringComparison.OrdinalIgnoreCase))
-            {
-                targetMode = isCodeEmpty ? 6 : 7;
-            }
-            else
-            {
-                targetMode = isCodeEmpty ? 4 : 5;
-            }
+            int targetMode = string.Equals(selectionType, "main", StringComparison.OrdinalIgnoreCase) ? 2 : 4;
 
             var rawData = _bomRepository.GetAllRecipes(string.Empty, string.Empty, targetMode, searchCode);
             return MapToDto(rawData);

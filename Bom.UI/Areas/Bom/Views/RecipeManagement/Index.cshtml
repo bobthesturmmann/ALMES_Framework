@@ -22,13 +22,27 @@
 <div class="container-fluid py-4">
     <div class="card shadow-sm border-0 rounded-1 mb-4">
         <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
-            <h5 class="fw-bold text-dark m-0">
-                <i class="bi bi-gear-wide-connected text-primary me-2"></i>Reçete Ekleme & Düzenleme Paneli
+            <h5 class="fw-bold text-dark m-0" id="lblPanelTitle">
+                @if (Context.Request.Query["mode"] == "view")
+                {
+                    <i class="bi bi-eye-fill text-info me-2"></i><span>Reçete İnceleme Paneli (Salt Okunur)</span>
+                }
+                else
+                {
+                    <i class="bi bi-gear-wide-connected text-primary me-2"></i><span>Reçete Ekleme & Düzenleme Paneli</span>
+                }
             </h5>
             <div>
-                <button type="button" class="btn btn-success fw-bold px-4 shadow-sm" id="btnSaveAllChanges" disabled>
-                    <i class="bi bi-cloud-check-fill me-2"></i> Tüm Değişiklikleri Kaydet
-                </button>
+                <a href="@ViewBag.ReturnUrl" class="btn btn-sm btn-outline-secondary fw-semibold me-2">
+                    <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+                </a>
+
+                @if (Context.Request.Query["mode"] != "view")
+                {
+                    <button type="button" class="btn btn-success fw-bold px-4 shadow-sm" id="btnSaveAllChanges" disabled>
+                        <i class="bi bi-cloud-check-fill me-2"></i> Tüm Değişiklikleri Kaydet
+                    </button>
+                }
                 <span class="badge bg-dark font-monospace fw-semibold ms-2">v0.0.22</span>
             </div>
         </div>
@@ -41,60 +55,76 @@
                         <label class="form-label small fw-semibold text-muted">Ana Ürün Kodu / Adı</label>
                         <div class="input-group">
                             <input type="text" id="txtMainProductCode" class="form-control bg-white text-dark fw-bold" placeholder="Ürün Seçiniz..." readonly>
-                            <input type="hidden" id="hdnMainProductRef" value="0"> <button class="btn btn-outline-primary" type="button" id="btnSelectMainProduct">
-                            <i class="bi bi-box-seam me-1"></i> Seç
-                        </button>
+                            <input type="hidden" id="hdnMainProductRef" value="0">
+
+                            @if (Context.Request.Query["mode"] != "view")
+                            {
+                                <button class="btn btn-outline-primary" type="button" id="btnSelectMainProduct">
+                                    <i class="bi bi-box-seam me-1"></i> Seç
+                                </button>
+                            }
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-semibold text-muted">Üretim Miktarı</label>
-                    <input type="number" id="numMainQuantity" class="form-control" value="1.000000" step="1" min="0.000001">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-semibold text-muted">Üretim Birimi</label>
-                    <input type="text" id="txtMainUnit" class="form-control bg-white" placeholder="Birim" readonly>
-                    <input type="hidden" id="hdnMainUnitRef" value="1">
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-dark w-100 fw-semibold" id="btnClearForm">
-                        <i class="bi bi-trash me-1"></i> Formu Temizle
-                    </button>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-muted">Üretim Miktarı</label>
+                        <input type="number" id="numMainQuantity" class="form-control" value="1.000000" step="1" min="0.000001" @(Context.Request.Query["mode"] == "view" ? "disabled" : "")>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold text-muted">Üretim Birimi</label>
+                        <input type="text" id="txtMainUnit" class="form-control" placeholder="Birim" disabled>
+                        <input type="hidden" id="hdnMainUnitRef" value="1">
+                    </div>
+
+                    @if (Context.Request.Query["mode"] != "view")
+                    {
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-dark w-100 fw-semibold" id="btnClearForm">
+                                <i class="bi bi-trash me-1"></i> Formu Temizle
+                            </button>
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
 
-        <div class="border rounded-2 p-3">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <h6 class="fw-bold text-secondary m-0"><i class="bi bi-list-nested me-2 text-primary"></i>2. Reçete Bileşenleri (Alt Ürünler)</h6>
-                <button type="button" class="btn btn-sm btn-primary fw-semibold" id="btnAddSubProduct" disabled>
-                    <i class="bi bi-plus-circle me-1"></i> Bileşen (Alt Ürün) Ekle
-                </button>
-            </div>
+            <div class="border rounded-2 p-3">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-secondary m-0"><i class="bi bi-list-nested me-2 text-primary"></i>2. Reçete Bileşenleri (Alt Ürünler)</h6>
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle m-0" id="tblRecipeLines">
-                    <thead class="table-dark">
-                        <tr>
-                            <th style="width: 8%">Satır No</th>
-                            <th style="width: 20%">Bileşen Kodu</th>
-                            <th style="width: 30%">Bileşen Adı</th>
-                            <th style="width: 15%">Miktar</th>
-                            <th style="width: 12%">Birim</th>
-                            <th style="width: 15%" class="text-center">Durum / Aksiyon</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="trEmptyRow">
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <i class="bi bi-arrow-up-circle me-1"></i> Lütfen önce yukarıdan bir <b>Ana Ürün</b> seçiniz.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    @if (Context.Request.Query["mode"] != "view")
+                    {
+                        <button type="button" class="btn btn-sm btn-primary fw-semibold" id="btnAddSubProduct" disabled>
+                            <i class="bi bi-plus-circle me-1"></i> Bileşen (Alt Ürün) Ekle
+                        </button>
+                    }
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle m-0" id="tblRecipeLines">
+                        <thead class="table-dark">
+                            <tr>
+                                <th style="width: 20%">Bileşen Kodu</th>
+                                <th style="width: 10%" class="text-center">Türü</th>
+                                <th style="width: 40%">Bileşen Adı</th>
+                                <th style="width: 15%">Miktar</th>
+                                <th style="width: 15%" class="text-center">Birim</th>
+                                @if (Context.Request.Query["mode"] != "view")
+                                {
+                                    <th style="width: 15%" class="text-center" id="thActionHeader">İşlem</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="trEmptyRow">
+                                <td colspan="@(Context.Request.Query["mode"] == "view" ? "5" : "6")" class="text-center text-muted py-4">
+                                    <i class="bi bi-arrow-up-circle me-1"></i> Lütfen önce yukarıdan bir <b>Ana Ürün</b> seçiniz.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 
 @await Html.PartialAsync("_ProductSelectModalPartial")
@@ -102,6 +132,5 @@
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="~/bom/js/recipe-management.js"></script>
 }
