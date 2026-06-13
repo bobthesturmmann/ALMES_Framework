@@ -49,16 +49,22 @@ namespace Bom.Lib
             return data.Select(x => new BomDto
             {
                 LineNo = x.SatirNo,
+                MainProductRef = x.AnaUrunRef,
                 MainProductCode = x.AnaUrunKodu,
                 MainProductName = x.AnaUrunAdi,
                 MainQuantity = x.AnaMiktar,
                 MainUnit = x.AnaBirimi,
                 MainUnitSet = x.AnaBirimSeti,
+
+                SubProductRef = x.AltUrunRef,
+                AltBirimRef = x.AltBirimRef,
+                SubUnitSet = x.AltBirimRef.ToString(),
+
                 SubProductCode = x.AltUrunKodu,
                 SubProductName = x.AltUrunAdi,
                 SubQuantity = x.AltMiktar,
                 SubUnit = x.AltBirimi,
-                SubUnitSet = x.AltBirimSeti
+                IsRecipeExists = !string.IsNullOrEmpty(x.AltUrunKodu)
             }).ToList();
         }
 
@@ -113,6 +119,23 @@ namespace Bom.Lib
 
             var rawData = _bomRepository.GetAllRecipes(string.Empty, string.Empty, targetMode, searchCode);
             return MapToDto(rawData);
+        }
+
+        public void ExecuteBulkRecipeLine(
+            string firmaNo, string donemNo, int islemTipi, int satirNo,
+            int anaUrunRef, decimal anaMiktar, int anaBirimRef,
+            int altUrunRef, decimal altMiktar, int altBirimRef, decimal lostFactor)
+        {
+            _bomRepository.ManageRecipeLine(
+                firmaNo, donemNo, islemTipi, satirNo,
+                anaUrunRef, anaMiktar, anaBirimRef,
+                altUrunRef, altMiktar, altBirimRef, lostFactor
+            );
+        }
+
+        public void UpdateMainProductInfo(string firmaNo, string donemNo, int anaUrunRef, decimal anaMiktar, int anaBirimRef)
+        {
+            _bomRepository.UpdateMainProductProductionInfo(firmaNo, donemNo, anaUrunRef, anaMiktar, anaBirimRef);
         }
     }
 }

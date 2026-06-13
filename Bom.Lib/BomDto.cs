@@ -13,6 +13,10 @@
         public decimal SubQuantity { get; set; }
         public string SubUnit { get; set; } = string.Empty;
         public string SubUnitSet { get; set; } = string.Empty;
+        public int MainProductRef { get; set; }
+        public bool IsRecipeExists { get; set; }
+        public int SubProductRef { get; set; }
+        public int AltBirimRef { get; set; }
     }
 
     public class PagedBomResult
@@ -46,5 +50,24 @@
         public int AddedLineNo { get; set; }
         public int MainProductRef { get; set; }
         public int SubProductRef { get; set; }
+    }
+
+    public class BulkRecipeSaveDto
+    {
+        public int AnaUrunRef { get; set; }
+        public decimal AnaMiktar { get; set; }
+        public int AnaBirimRef { get; set; }
+        public bool IsDeleteAll { get; set; }
+
+        public List<RecipeLineDto> Lines { get; set; } = new List<RecipeLineDto>();
+    }
+
+    public class RecipeLineDto
+    {
+        public string Status { get; set; } = string.Empty;
+        public int SatirNo { get; set; }
+        public int AltUrunRef { get; set; }
+        public int AltBirimRef { get; set; }
+        public decimal AltMiktar { get; set; }
     }
 }

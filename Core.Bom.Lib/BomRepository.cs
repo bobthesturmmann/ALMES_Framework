@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using _Core.Shared.Lib;
 using Core.Service;
-using _Core.Shared.Lib;
+using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace Core.Bom.Lib
 {
@@ -35,7 +36,6 @@ namespace Core.Bom.Lib
             }
 
             string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
-
             var cleanSearch = (searchCode ?? "").Trim().Replace("'", "''");
 
             int fNo = int.TryParse(firmaNo, out var f) ? f : 0;
@@ -63,26 +63,9 @@ namespace Core.Bom.Lib
             return _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => MapRowToEntity(row));
         }
 
-        //private BomViewEntity MapRowToEntity(System.Data.IDataRecord row)
-        //{
-        //    return new BomViewEntity
-        //    {
-        //        SatirNo = row["SatirNo"] != DBNull.Value ? Convert.ToInt32(row["SatirNo"]) : 0,
-        //        AnaUrunKodu = row["AnaUrunKodu"].ToString()!,
-        //        AnaUrunAdi = row["AnaUrunAdi"].ToString()!,
-        //        AnaMiktar = row["AnaMiktar"] != DBNull.Value ? Convert.ToDecimal(row["AnaMiktar"]) : 0,
-        //        AnaBirimi = row["AnaBirimi"].ToString()!,
-        //        AnaBirimSeti = row["AnaBirimSeti"].ToString()!,
-        //        AltUrunKodu = row["AltUrunKodu"] != DBNull.Value ? row["AltUrunKodu"].ToString()! : string.Empty,
-        //        AltUrunAdi = row["AltUrunAdi"] != DBNull.Value ? row["AltUrunAdi"].ToString()! : string.Empty,
-        //        AltMiktar = row["AltMiktar"] != DBNull.Value ? Convert.ToDecimal(row["AltMiktar"]) : 0,
-        //        AltBirimi = row["AltBirimi"] != DBNull.Value ? row["AltBirimi"].ToString()! : string.Empty,
-        //        AltBirimSeti = row["AltBirimSeti"] != DBNull.Value ? row["AltBirimSeti"].ToString()! : string.Empty
-        //    };
-        //}
-
         private BomViewEntity MapRowToEntity(System.Data.IDataRecord row)
         {
+
             bool HasColumn(System.Data.IDataRecord dr, string columnName)
             {
                 for (int i = 0; i < dr.FieldCount; i++)
@@ -95,13 +78,15 @@ namespace Core.Bom.Lib
 
             var entity = new BomViewEntity
             {
+                AnaUrunRef = HasColumn(row, "AnaUrunRef") && row["AnaUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AnaUrunRef"]) : 0,
                 SatirNo = HasColumn(row, "SatirNo") && row["SatirNo"] != DBNull.Value ? Convert.ToInt32(row["SatirNo"]) : 0,
                 AnaUrunKodu = row["AnaUrunKodu"].ToString()!,
                 AnaUrunAdi = row["AnaUrunAdi"].ToString()!,
                 AnaMiktar = row["AnaMiktar"] != DBNull.Value ? Convert.ToDecimal(row["AnaMiktar"]) : 0,
                 AnaBirimi = row["AnaBirimi"].ToString()!,
                 AnaBirimSeti = HasColumn(row, "AnaBirimSeti") && row["AnaBirimSeti"] != DBNull.Value ? row["AnaBirimSeti"].ToString()! : string.Empty,
-
+                AltUrunRef = HasColumn(row, "AltUrunRef") && row["AltUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AltUrunRef"]) : 0,
+                AltBirimRef = HasColumn(row, "AltBirimRef") && row["AltBirimRef"] != DBNull.Value ? Convert.ToInt32(row["AltBirimRef"]) : 0,
                 AltUrunKodu = HasColumn(row, "AltUrunKodu") && row["AltUrunKodu"] != DBNull.Value ? row["AltUrunKodu"].ToString()! : string.Empty,
                 AltUrunAdi = HasColumn(row, "AltUrunAdi") && row["AltUrunAdi"] != DBNull.Value ? row["AltUrunAdi"].ToString()! : string.Empty,
                 AltMiktar = HasColumn(row, "AltMiktar") && row["AltMiktar"] != DBNull.Value ? Convert.ToDecimal(row["AltMiktar"]) : 0,
@@ -113,17 +98,17 @@ namespace Core.Bom.Lib
         }
 
         public BomManageResultEntity ManageRecipeLine(
-                string firmaNo,
-                string donemNo,
-                int islemTipi,
-                int satirNo,
-                int anaUrunRef,
-                decimal anaMiktar,
-                int anaBirimRef,
-                int altUrunRef,
-                decimal altMiktar,
-                int altBirimRef,
-                decimal lostFactor)
+        string firmaNo,
+        string donemNo,
+        int islemTipi,
+        int satirNo,
+        int anaUrunRef,
+        decimal anaMiktar,
+        int anaBirimRef,
+        int altUrunRef,
+        decimal altMiktar,
+        int altBirimRef,
+        decimal lostFactor)
         {
             if (!_authBridge.IsUserLoggedIn())
             {
@@ -151,17 +136,34 @@ namespace Core.Bom.Lib
             @AltBirimRef = {altBirimRef}, 
             @LostFactor = {lostFactor.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 
-            var resultList = _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => new BomManageResultEntity
-            {
-                IslemBasarili = row["IslemBasarili"] != DBNull.Value ? Convert.ToInt32(row["IslemBasarili"]) : 0,
-                AnaUrunRef = row["AnaUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AnaUrunRef"]) : 0,
-                AltUrunRef = row["AltUrunRef"] != DBNull.Value ? Convert.ToInt32(row["AltUrunRef"]) : 0,
-                EklenenSatirNo = row["EklenenSatirNo"] != DBNull.Value ? Convert.ToInt32(row["EklenenSatirNo"]) : 0
-            });
+            var rawResult = _sqlEngine.ExecuteRawQuery(connectionString, execCommand, row => row);
 
-            return resultList != null && resultList.Count > 0
-                ? resultList[0]
-                : new BomManageResultEntity { IslemBasarili = 0 };
+            return new BomManageResultEntity
+            { 
+                IslemBasarili = 1,
+                AnaUrunRef = anaUrunRef,
+                AltUrunRef = altUrunRef,
+                EklenenSatirNo = satirNo
+            };
+        }
+
+        public void UpdateMainProductProductionInfo(string firmaNo, string donemNo, int anaUrunRef, decimal anaMiktar, int anaBirimRef)
+        {
+            if (string.IsNullOrEmpty(firmaNo))
+            {
+                var globalSettings = _appSettingsService.GetGlobalSettings();
+                firmaNo = globalSettings.SirketKodu;
+            }
+
+            string connectionString = _connectionProvider.GetConnectionString("BOM", firmaNo, donemNo);
+
+            string query = $@"
+        UPDATE [LG_{firmaNo.Trim()}_ITEMS] 
+        SET QPRODAMNT = {anaMiktar.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 
+            QPRODUOM = {anaBirimRef} 
+        WHERE LOGICALREF = {anaUrunRef}";
+
+            _sqlEngine.ExecuteRawQuery(connectionString, query, row => row);
         }
     }
 }
