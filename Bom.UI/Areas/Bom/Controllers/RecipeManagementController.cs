@@ -3,26 +3,27 @@ using Core.Bom.Lib;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 
 namespace Bom.UI.Areas.Bom.Controllers
 {
     [Area("Bom")]
     [Authorize]
     [Authorize(Policy = "ModuleControl")]
-    public class RecipeManagementController : Controller
+    public class RecipeManagementController(BomManager bomManager) : Controller
     {
-        private readonly BomManager _bomManager;
+        private readonly BomManager _bomManager = bomManager;
 
-        public RecipeManagementController(BomManager bomManager)
-        {
-            _bomManager = bomManager;
-        }
-
+        [HttpGet]
         [Route("Bom/RecipeManagement")]
         public IActionResult Index()
         {
-            string referer = Request.Headers["Referer"].ToString();
-            ViewBag.ReturnUrl = (!string.IsNullOrEmpty(referer) && referer.Contains("/Bom")) ? referer : "/Bom/RecipeList";
+            string? referer = Request.Headers.Referer.ToString();
+
+            ViewBag.ReturnUrl = (!string.IsNullOrEmpty(referer) && referer.Contains("/Bom") && !referer.Contains("RecipeManagement"))
+                ? referer
+                : "/Bom/RecipeList";
+
             return View();
         }
 
@@ -48,7 +49,6 @@ namespace Bom.UI.Areas.Bom.Controllers
                 }
 
                 var result = _bomManager.SaveRecipeLine(dto);
-
                 return Json(result);
             }
             catch (Exception ex)
@@ -68,8 +68,8 @@ namespace Bom.UI.Areas.Bom.Controllers
                     return Json(new { isSuccess = false, message = "Geçersiz istek verisi veya Ana Ürün referansı eksik!" });
                 }
 
-                string? firmaNo = null;
-                string? donemNo = null;
+                string firmaNo = "";
+                string donemNo = "";
 
                 if (payload.IsDeleteAll)
                 {
@@ -137,7 +137,8 @@ namespace Bom.UI.Areas.Bom.Controllers
                         unit = isMain ? p.MainUnit : p.SubUnit,
                         productRef = isMain ? p.MainProductRef : p.SubProductRef,
                         unitRef = p.AltBirimRef,
-                        isRecipeExists = p.IsRecipeExists
+                        isRecipeExists = p.IsRecipeExists,
+                        quantity = isMain ? p.MainQuantity : p.SubQuantity
                     };
                 }).ToList();
 

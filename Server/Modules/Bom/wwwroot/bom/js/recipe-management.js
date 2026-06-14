@@ -8,6 +8,15 @@
     const paramProductCode = urlParams.get('productCode');
     const paramMode = urlParams.get('mode');
 
+    // Edit veya View modunda seçici elementleri devre dışı bırakıyoruz
+    if (paramMode === "edit" || paramMode === "view") {
+        $("#btnSelectMainProduct").prop("disabled", true);
+        $("#txtMainProductCode").prop("disabled", true);
+
+        $("#txtMainProductCode").off("click");
+        $("#btnSelectMainProduct").off("click");
+    }
+
     if (paramProductCode) {
         $("#txtMainProductCode").val("Logo'dan yükleniyor (" + paramProductCode + ")...");
 
@@ -23,6 +32,9 @@
                     $("#hdnMainProductRef").val(item.productRef);
                     $("#txtMainUnit").val(item.unit);
                     $("#hdnMainUnitRef").val(item.unitRef);
+
+                    let mainQty = (item.quantity && parseFloat(item.quantity) > 0) ? parseFloat(item.quantity) : 1;
+                    $("#numMainQuantity").val(mainQty);
 
                     if (paramMode !== "view") {
                         $("#btnAddSubProduct").prop("disabled", false);
@@ -66,7 +78,7 @@
                             <td class="text-center"><span class="badge ${badgeColor}">${line.subProductType || '--'}</span></td>
                             <td class="text-secondary fw-semibold">${line.subProductName}</td>
                             <td>
-                                <input type="number" class="form-control form-control-sm txt-sub-qty" value="${parseFloat(line.subQuantity).toFixed(6)}" style="max-width:120px;" ${isView ? "disabled" : ""}>
+                                <input type="number" class="form-control form-control-sm txt-sub-qty" value="${parseFloat(line.subQuantity)}" style="max-width:120px;" ${isView ? "disabled" : ""}>
                             </td>
                             <td class="text-center"><span class="badge bg-light text-dark border">${line.subUnit}</span></td>`;
 
@@ -97,6 +109,10 @@
 
     $(document).on("click", "#btnSelectMainProduct, #btnAddSubProduct", function () {
         let $btn = $(this);
+
+        // GÜVENLİK KİLİDİ: Eğer buton disabled ise modalın tetiklenmesini kesin olarak engelle
+        if ($btn.prop("disabled")) return;
+
         if ($btn.attr("id") === "btnSelectMainProduct") {
             targetSelection = "main";
             $("#productSelectModalLabel").html('<i class="bi bi-box-seam text-primary me-2"></i>Ana Ürün Seçimi');
@@ -127,7 +143,7 @@
             $("#hdnMainProductRef").val(ref);
             $("#txtMainUnit").val(unit);
             $("#hdnMainUnitRef").val(unitref);
-            $("#numMainQuantity").val("1.000000");
+            $("#numMainQuantity").val("1");
 
             $("#btnAddSubProduct").prop("disabled", false);
             $("#btnSaveAllChanges").prop("disabled", false);
@@ -165,7 +181,7 @@
                 <td class="text-center"><span class="badge ${badgeColor}">${type}</span></td>
                 <td class="text-secondary fw-semibold">${name}</td>
                 <td>
-                    <input type="number" class="form-control form-control-sm txt-sub-qty" value="1.000000" step="any" style="max-width:120px;">
+                    <input type="number" class="form-control form-control-sm txt-sub-qty" value="1" step="1" min="0" style="max-width:120px;">
                 </td>
                 <td class="text-center"><span class="badge bg-light text-dark border">${unit}</span></td>
                 <td class="text-center">
@@ -176,6 +192,7 @@
                     </div>
                 </td>
             </tr>`;
+
             $("#tblRecipeLines tbody").append(newRow);
         }
 
@@ -355,7 +372,6 @@
     function reIndexTableRows() {
         let index = 1;
         $("#tblRecipeLines tbody tr:visible").not("#trEmptyRow").each(function () {
-            $(this).find(".row-number").text(index);
             $(this).attr("data-satirno", index);
             index++;
         });

@@ -102,7 +102,7 @@
                                 <td><span class="badge @badgeColor">@(string.IsNullOrEmpty(item.ProductType) ? "--" : item.ProductType)</span></td>
 
                                 <td class="text-secondary fw-semibold">@item.MainProductName</td>
-                                <td class="text-end fw-bold text-success">@item.MainQuantity.ToString("N2")</td>
+                                <td class="text-end fw-bold text-success">@item.MainQuantity.ToString("G29")</td>
                                 <td class="text-center"><span class="badge bg-light text-dark border">@item.MainUnit</span></td>
 
                                 <td class="text-center" onclick="event.stopPropagation();">
